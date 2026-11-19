@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#101014">
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Pactos</title>
+<meta name="application-name" content="TEA">
+<title>TEA</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -279,12 +280,12 @@ input[type="text"]::placeholder{color:#7C7A86}
 'use strict';
 
 /* =====================================================================
-   PACTOS — registro semanal de actividades
+   TEA (Tiny Experiments App) — registro semanal de pactos
    Todo vive en este archivo. Los datos se guardan solo en el celular.
    ===================================================================== */
 
 /* ---------- 1. Constantes ---------- */
-const APP_VERSION = '1.2.0';      // versión de la app (debe coincidir con sw.js)
+const APP_VERSION = '1.2.1';      // versión de la app (debe coincidir con sw.js)
 const VERSION_DATOS = 3;          // versión del formato de los datos guardados
 const CLAVE = 'pactos.datos';
 const FONDO = '#101014';
@@ -1403,7 +1404,7 @@ function abrirAjustes() {
       }).join('') + '<div class="aj-b"><button class="btn btn-gris btn-ch" data-a="cat-nueva">' + ICO.mas + 'Nueva categoría</button></div></section>';
       h += '<section class="aj"><h3>Respaldo</h3><p class="nota">Tus datos viven solo en este celular. Exporta un respaldo de vez en cuando y guárdalo en un lugar seguro.</p>' +
         '<div class="aj-b"><button class="btn btn-gris btn-ch" data-a="exportar">Exportar datos</button><button class="btn btn-gris btn-ch" data-a="importar">Importar datos</button></div></section>';
-      h += '<p class="nota aj-v">Pactos ' + APP_VERSION + ' · datos v' + VERSION_DATOS + '</p>';
+      h += '<p class="nota aj-v">TEA ' + APP_VERSION + ' · datos v' + VERSION_DATOS + '</p>';
       return h;
     },
     acciones: {
@@ -1421,7 +1422,7 @@ function exportar() {
     const cuerpo = JSON.stringify(Object.assign({ app: 'pactos', exportado: new Date().toISOString() }, datos), null, 2);
     const url = URL.createObjectURL(new Blob([cuerpo], { type: 'application/json' }));
     const a = document.createElement('a');
-    a.href = url; a.download = 'pactos-respaldo-' + hoyIso() + '.json';
+    a.href = url; a.download = 'tea-respaldo-' + hoyIso() + '.json';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
     aviso('Respaldo descargado');
@@ -1438,7 +1439,7 @@ $archivo.addEventListener('change', function () {
     try {
       d = JSON.parse(String(lector.result));
       if (!esObj(d) || typeof d.version !== 'number' || !Array.isArray(d.pactos) || !Array.isArray(d.categorias)) throw new Error('formato');
-    } catch (e) { aviso('Ese archivo no es un respaldo de Pactos.'); return; }
+    } catch (e) { aviso('Ese archivo no es un respaldo de TEA.'); return; }
     if (d.version > VERSION_DATOS) { aviso('Ese respaldo es de una versión más nueva. Actualiza la app primero.'); return; }
     try { nuevo = sanear(migrar(d)); } catch (e) { aviso('No se pudo leer el respaldo.'); return; }
     confirmar({

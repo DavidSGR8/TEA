@@ -1,7 +1,7 @@
-/* Pactos — service worker
+/* TEA — service worker
    Guarda la app en el celular para que abra sin internet.
    En cada actualización de la app hay que cambiar VERSION (igual que APP_VERSION en index.html). */
-const VERSION = '1.2.0';
+const VERSION = '1.2.1';
 const CACHE = 'pactos-' + VERSION;
 const BASE = ['./', './index.html', './manifest.json'];
 const EXTRA = ['./icon.svg', './icon-192.png', './icon-512.png'];
