@@ -1,0 +1,1598 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101014">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Pactos</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --fondo:#101014; --sup:#17171D; --sup2:#22222B; --linea:#1E1D25; --pista:#24232D; --borde:#3A3946;
+  --texto:#EEEDF3; --tenue:#98969F; --acento:#B45CFF; --acento-texto:#CE95FF; --acento-suave:#311F43;
+  --peligro:#E8A090; --nav:64px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:dark;background:var(--fondo)}
+body{margin:0;background:var(--fondo);color:var(--texto);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
+body.con-capa{overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;touch-action:manipulation}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+h1,h2,h3,p,dl,dd{margin:0}
+[hidden]{display:none!important}
+
+#vista{max-width:520px;margin:0 auto;min-height:100vh;padding:calc(10px + env(safe-area-inset-top)) 20px calc(var(--nav) + 40px + env(safe-area-inset-bottom))}
+#vista.con-bp{padding-bottom:calc(var(--nav) + 160px + env(safe-area-inset-bottom))}
+
+/* Cabecera */
+.cab{display:grid;grid-template-columns:40px 44px minmax(0,1fr) 44px 40px;align-items:center;min-height:56px}
+.cab.simple{grid-template-columns:40px minmax(0,1fr) 40px}
+.cab h1{font-size:20px;font-weight:700;text-align:center}
+.redondo{width:44px;height:44px;border-radius:50%;background:var(--sup2);display:flex;align-items:center;justify-content:center}
+.icono{width:40px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--tenue)}
+.cab-fecha{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:48px;min-width:0}
+.cab-t{font-size:16px;font-weight:600;text-align:center;line-height:1.2}
+.cab-t.larga{font-size:14px}
+.cab-s{font-size:12px;color:var(--tenue);text-align:center}
+
+/* Anillos */
+.anillo{position:relative;flex:none}
+.anillo svg{display:block}
+.anillo-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.hero{display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 0 6px}
+.hero-n{font-size:40px;font-weight:700;line-height:1}
+.hero-s{font-size:12px;color:var(--tenue);margin-top:4px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;min-height:31px}
+.chip{padding:6px 12px;border-radius:999px;background:var(--sup2);color:#C9C7D3;font-size:13px}
+.chip-a{background:var(--acento-suave);color:var(--acento-texto)}
+
+/* Barra compacta (aparece al bajar) */
+.compacta{position:fixed;top:0;left:0;right:0;z-index:20;background:var(--fondo);border-bottom:1px solid var(--linea);padding-top:env(safe-area-inset-top);transform:translateY(-100%);visibility:hidden;transition:transform .16s ease,visibility 0s .16s}
+.compacta.visible{transform:none;visibility:visible;transition:transform .16s ease}
+.comp-in{max-width:520px;margin:0 auto;padding:8px 20px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:center}
+.comp-item{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.comp-n{font-size:12px;font-weight:700}
+.comp-e{font-size:12px;color:var(--tenue);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.comp-txt{grid-column:span 2;display:flex;flex-direction:column;min-width:0}
+.comp-t{font-size:15px;font-weight:600}
+.comp-s{font-size:12px;color:var(--tenue)}
+
+/* Avisos de cierre */
+.pend{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--acento-suave);border-radius:14px;padding:10px 10px 10px 14px;margin-top:12px}
+.pend-t{display:flex;flex-direction:column;min-width:0}
+.pend-t strong{font-size:14px;overflow-wrap:anywhere}
+.pend-t span{font-size:12px;color:var(--acento-texto)}
+
+/* Lista de pactos */
+.lista{margin-top:14px;display:flex;flex-direction:column}
+.pacto{display:flex;flex-wrap:wrap;align-items:center;margin:0 -10px;padding:2px 10px;border-bottom:1px solid var(--linea)}
+.pacto.sel{background:var(--sup);border-radius:12px;border-bottom-color:transparent}
+.pacto-info{flex:1 1 100%;min-width:0;display:flex;align-items:center;gap:10px;text-align:left;min-height:48px;padding:8px 0 0}
+.punto{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.pacto-txt{display:flex;flex-direction:column;min-width:0}
+.pacto-nom{font-size:15px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
+.pacto-meta{font-size:12px;color:var(--tenue);margin-top:2px}
+.circulos{flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:flex-start;margin:0 0 4px 10px}
+.c{width:40px;height:44px;display:flex;align-items:center;justify-content:center}
+.c span{width:24px;height:24px;border-radius:50%;border:1.5px solid #77748A}
+.c.x span{border-style:dashed}
+.c.on span{background:var(--cc,var(--acento));border:1.5px solid var(--cc,var(--acento))}
+.centro{display:flex;justify-content:center;margin-top:22px}
+.pacto-nota{flex-basis:100%;display:flex;align-items:flex-start;gap:8px;text-align:left;min-height:36px;margin:-4px 0 8px;padding:6px 0 6px 18px;font-size:13px;line-height:1.4;color:#C9C7D3}
+.pacto-nota svg{flex:none;margin-top:2px;color:var(--tenue)}
+.pacto-nota span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line;overflow-wrap:anywhere}
+.vacio{text-align:center;padding:28px 12px 4px;color:var(--tenue);font-size:14px}
+.vacio strong{display:block;color:var(--texto);font-size:16px;margin-bottom:6px}
+
+/* Botones */
+.btn{min-height:46px;padding:0 20px;border-radius:999px;font-size:15px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btn-pri{background:var(--acento);color:#15131C}
+.btn-borde{border:1.5px solid var(--acento);color:var(--acento-texto)}
+.btn-gris{background:var(--sup2);color:var(--texto)}
+.btn-rojo{background:var(--peligro);color:#1D0F0B}
+.btn-pel{color:var(--peligro)}
+.btn-ch{min-height:44px;padding:0 16px;font-size:14px}
+.btn-ancho{width:100%;min-height:50px}
+
+/* Opciones del pacto tocado */
+.bp{position:fixed;left:0;right:0;bottom:calc(var(--nav) + 8px + env(safe-area-inset-bottom));z-index:16;padding:0 12px;pointer-events:none}
+.bp-in{pointer-events:auto;max-width:496px;margin:0 auto;background:var(--sup2);border:1px solid var(--borde);border-radius:18px;padding:4px 8px 10px 14px;box-shadow:0 10px 28px rgba(0,0,0,.55)}
+.bp-cab{display:flex;align-items:center;gap:8px}
+.bp-nom{flex:1;min-width:0;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bp-b{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding-right:6px}
+.bp-b .btn{background:#30303B;padding:4px 8px;font-size:14px;min-height:44px;line-height:1.15}
+.bp-nota{padding:0 6px 4px 0}
+
+/* Navegación inferior */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--fondo);border-top:1px solid var(--linea);padding-bottom:env(safe-area-inset-bottom)}
+.nav-in{max-width:520px;margin:0 auto;display:flex;padding:4px 4px;height:var(--nav)}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:500;color:var(--tenue)}
+.nav button[aria-current="page"]{color:var(--acento-texto);font-weight:600}
+
+/* Análisis */
+.hero-sem{font-size:13px;color:var(--tenue)}
+.pildoras{display:flex;justify-content:center;gap:8px;margin-top:18px}
+.sub{font-size:13px;color:var(--tenue);margin:-6px 0 12px}
+.dist{display:flex;gap:3px;height:18px;border-radius:9px;overflow:hidden}
+.dist span{min-width:4px}
+.leyenda{display:flex;flex-direction:column;margin-top:10px}
+.ley{display:flex;align-items:center;gap:10px;min-height:42px;border-bottom:1px solid var(--linea);font-size:14px}
+.ley-n{flex:1;min-width:0;overflow-wrap:anywhere}
+.ley-v{color:var(--tenue);white-space:nowrap}
+.ley-v b{color:var(--texto);font-weight:600}
+.notas{margin-top:12px;border-top:1px solid var(--linea)}
+.notas summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--acento-texto);list-style:none}
+.notas summary::-webkit-details-marker{display:none}
+.notas ul{list-style:none;margin:0;padding:0 0 4px;display:flex;flex-direction:column;gap:12px}
+.notas li span{display:block;font-size:12px;color:var(--tenue)}
+.notas li p{font-size:14px;white-space:pre-line;overflow-wrap:anywhere}
+textarea{width:100%;min-height:150px;border-radius:14px;border:1.5px solid var(--borde);background:var(--fondo);color:var(--texto);font:inherit;font-size:16px;line-height:1.45;padding:12px 14px;resize:vertical}
+textarea::placeholder{color:#7C7A86}
+.pil{min-height:44px;padding:0 16px;border-radius:999px;background:var(--sup2);color:var(--tenue);font-weight:600;font-size:14px}
+.pil[aria-pressed="true"]{background:var(--acento);color:#15131C}
+.graf{margin-top:16px}
+.graf svg{display:block}
+.graf text{font-size:11px;fill:var(--tenue)}
+.graf-e{display:flex;justify-content:space-between;margin:4px 40px 0 0;font-size:12px;color:var(--tenue)}
+.sec{margin-top:30px}
+.sec>h2{font-size:15px;font-weight:700;margin-bottom:12px}
+.rejilla{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tarjeta{width:100%;background:var(--sup);border:1.5px solid transparent;border-radius:18px;padding:16px 10px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.tarjeta[aria-pressed="true"]{border-color:var(--acento)}
+.tar-p{font-size:17px;font-weight:700}
+.tar-n{display:block;font-size:14px;font-weight:600;margin-top:10px;overflow-wrap:anywhere;line-height:1.25}
+.tar-d{display:block;font-size:12px;color:var(--tenue);margin-top:4px}
+.barras{display:flex;flex-direction:column;gap:10px}
+.barra{position:relative;min-height:44px;border-radius:12px;background:var(--sup);overflow:hidden}
+.barra-r{position:absolute;left:0;top:0;bottom:0;opacity:.24}
+.barra-c{position:relative;min-height:44px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px}
+.barra-c span:first-child{display:flex;align-items:center;gap:8px;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.barra-c b{font-weight:700}
+
+/* Pendientes */
+.t-nueva{display:flex;gap:8px;margin-top:8px}
+.t-nueva input{flex:1;min-width:0}
+.t-mas{width:50px;height:50px;flex:none;border-radius:14px;background:var(--acento);color:#15131C;display:flex;align-items:center;justify-content:center}
+.tareas{list-style:none;margin:14px 0 0;padding:0}
+.tarea{display:flex;align-items:flex-start;border-bottom:1px solid var(--linea)}
+.t-check{width:44px;min-height:52px;flex:none;margin-left:-10px;display:flex;align-items:center;justify-content:center}
+.t-check span{width:24px;height:24px;border-radius:7px;border:1.5px solid #77748A;display:flex;align-items:center;justify-content:center;color:#15131C}
+.t-check span svg{visibility:hidden}
+.t-check[aria-pressed="true"] span{background:var(--acento);border-color:var(--acento)}
+.t-check[aria-pressed="true"] span svg{visibility:visible}
+.t-txt{flex:1;min-width:0;min-height:52px;padding:15px 0 14px;text-align:left;font-size:15px;line-height:1.4;overflow-wrap:anywhere;white-space:pre-line}
+.hechas .t-txt{color:var(--tenue);text-decoration:line-through}
+.t-sec{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:28px}
+.t-sec h2{font-size:14px;font-weight:600;color:var(--tenue)}
+.t-sec .btn{margin-right:-16px}
+.t-nada{margin-top:18px}
+
+/* Archivo */
+.arch{background:var(--sup);border-radius:18px;padding:16px;margin-top:12px}
+.arch-cab{display:flex;align-items:center;gap:10px}
+.arch-cab h2{font-size:16px;font-weight:700;overflow-wrap:anywhere}
+.arch-cat{font-size:12px;color:var(--tenue);margin:2px 0 0 18px}
+.arch dl{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.arch dt{font-size:12px;color:var(--tenue)}
+.arch dd{font-size:14px}
+.arch-b{display:flex;gap:8px;margin-top:14px;align-items:center;justify-content:space-between}
+
+/* Hojas (formularios y diálogos) */
+.capa{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;justify-content:flex-end}
+.velo{position:absolute;inset:0;background:rgba(0,0,0,.62)}
+.hoja{position:relative;width:100%;max-width:520px;margin:0 auto;background:var(--sup);border-radius:22px 22px 0 0;max-height:92%;overflow-y:auto;overscroll-behavior:contain;padding:6px 20px 0}
+.hoja-c{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+.capa.completa .hoja-c{padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+.capa.completa .hoja{height:100%;max-height:100%;border-radius:0;background:var(--fondo);padding-top:calc(6px + env(safe-area-inset-top))}
+.capa.dialogo{justify-content:center;padding:24px}
+.capa.dialogo .hoja{border-radius:22px;max-width:360px;padding:22px 20px 0;max-height:100%}
+.capa.dialogo .hoja-c{padding-bottom:18px}
+.hoja-cab{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:52px}
+.hoja-cab h2{font-size:18px;font-weight:700;flex:1;min-width:0}
+.capa.completa .hoja-cab h2{text-align:center}
+.hoja-cab .icono{margin-right:-10px}
+.capa.completa .hoja-cab .icono{margin:0 0 0 -10px}
+.hueco{width:30px;flex:none}
+.campo{display:flex;flex-direction:column;gap:8px;margin-top:20px}
+.etq{font-size:13px;color:var(--tenue);font-weight:500}
+input[type="text"]{width:100%;height:50px;border-radius:14px;border:1.5px solid var(--borde);background:var(--fondo);color:var(--texto);font:inherit;font-size:16px;padding:0 14px}
+input[type="text"]::placeholder{color:#7C7A86}
+.chips-sel{display:flex;flex-wrap:wrap;gap:8px}
+.chip-b{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--borde);display:inline-flex;align-items:center;gap:8px;font-size:14px;text-align:left}
+.chip-b[aria-pressed="true"]{border-color:var(--acento);background:var(--acento-suave);color:var(--acento-texto)}
+.fila{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:50px}
+.paso{display:flex;align-items:center;gap:2px}
+.paso button{width:44px;height:44px;border-radius:50%;background:var(--sup2);font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
+.paso output{min-width:44px;text-align:center;font-size:17px;font-weight:600}
+.paso.ancho{width:100%;justify-content:space-between}
+.paso.ancho output{flex:1;font-size:15px;display:flex;flex-direction:column;line-height:1.3}
+.paso.ancho output small{font-size:12px;color:var(--tenue);font-weight:400}
+.nota{font-size:12px;color:var(--tenue)}
+.error{color:var(--peligro);font-size:13px;margin-top:14px}
+.pie{position:sticky;bottom:0;background:var(--sup);margin-top:12px;padding:12px 0 14px}
+.pie2{display:flex;justify-content:center;padding-bottom:10px}
+.dos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.col{display:flex;flex-direction:column;gap:6px;font-size:14px;min-width:0}
+.col .paso{width:100%}
+.col .paso output{flex:1;min-width:24px}
+.muestras{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));margin:0 -4px}
+.muestra{height:44px;display:flex;align-items:center;justify-content:center}
+.muestra span{width:28px;height:28px;border-radius:50%}
+.muestra[aria-pressed="true"] span{box-shadow:0 0 0 2px var(--sup),0 0 0 4px var(--texto)}
+.capa.completa .muestra[aria-pressed="true"] span{box-shadow:0 0 0 2px var(--fondo),0 0 0 4px var(--texto)}
+.aj-etq{display:flex;align-items:center;justify-content:space-between;min-height:44px}
+.muestra-auto{min-height:44px;padding:0 0 0 12px;display:flex;align-items:center}
+.muestra-auto span{padding:5px 12px;border-radius:999px;border:1.5px solid var(--borde);font-size:13px}
+.muestra-auto span{color:var(--tenue)}
+.muestra-auto[aria-pressed="true"] span{border-color:var(--texto);color:var(--texto)}
+.opc{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--borde);margin-top:8px;min-height:56px}
+.opc strong{font-size:15px}
+.opc span{font-size:13px;color:var(--tenue)}
+.opc[aria-pressed="true"]{border-color:var(--acento);background:var(--acento-suave)}
+.opc[aria-pressed="true"] span{color:var(--acento-texto)}
+.panel{background:var(--fondo);border-radius:14px;padding:6px 14px 12px;margin-top:8px}
+.resumen{font-size:13px;color:var(--tenue);margin-top:2px}
+.dlg-t{font-size:17px;font-weight:700}
+.dlg-p{font-size:14px;color:#C9C7D3;margin-top:8px}
+.dlg-b{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+
+/* Ajustes */
+.aj{margin-top:26px}
+.aj h3{font-size:15px;font-weight:700;margin-bottom:10px}
+.aj-prev{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;background:var(--sup);border-radius:16px;padding:14px 8px;margin-bottom:8px}
+.aj-fila{margin-top:4px}
+.aj-cat{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;text-align:left;border-bottom:1px solid var(--linea)}
+.aj-cat-n{flex:1;min-width:0;font-size:15px;overflow-wrap:anywhere}
+.aj-cat-c{font-size:12px;color:var(--tenue)}
+.aj-b{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.aj-v{text-align:center;margin-top:34px}
+
+/* Mensajes breves */
+#avisos{position:fixed;left:0;right:0;bottom:calc(var(--nav) + 14px + env(safe-area-inset-bottom));z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 16px;pointer-events:none}
+.aviso{pointer-events:auto;max-width:480px;background:#EEEDF3;color:#15131C;border-radius:14px;padding:10px 14px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.aviso button{min-height:36px;padding:0 12px;border-radius:999px;background:#15131C;color:#EEEDF3;font-size:13px;font-weight:600;flex:none}
+
+@media (prefers-reduced-motion:reduce){.compacta,.compacta.visible{transition:none}}
+</style>
+</head>
+<body>
+<div id="compacta" class="compacta" aria-hidden="true"></div>
+<main id="vista"></main>
+<div id="barra-pacto"></div>
+<nav class="nav" aria-label="Secciones"><div class="nav-in">
+<button data-a="nav" data-v="semana"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>Semana</button>
+<button data-a="nav" data-v="tareas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M8 12l3 3 5-6"></path></svg>Pendientes</button>
+<button data-a="nav" data-v="analisis"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 20v-9M12 20V5M19 20v-6"></path></svg>Análisis</button>
+<button data-a="nav" data-v="archivo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1"></rect><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"></path></svg>Archivo</button>
+</div></nav>
+<div id="capas"></div>
+<div id="avisos" role="status" aria-live="polite"></div>
+<input type="file" id="archivo" accept="application/json,.json" hidden>
+
+<script>
+(function () {
+'use strict';
+
+/* =====================================================================
+   PACTOS — registro semanal de actividades
+   Todo vive en este archivo. Los datos se guardan solo en el celular.
+   ===================================================================== */
+
+/* ---------- 1. Constantes ---------- */
+const APP_VERSION = '1.2.0';      // versión de la app (debe coincidir con sw.js)
+const VERSION_DATOS = 3;          // versión del formato de los datos guardados
+const CLAVE = 'pactos.datos';
+const FONDO = '#101014';
+const MAX_VECES = 14;
+const MAX_SEMANAS = 520;
+const MAX_NOTA = 500;
+const MAX_TAREA = 200;
+const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const PALETA = [
+  { n: 'Violeta', c: '#B45CFF' }, { n: 'Azul', c: '#3D8BFF' }, { n: 'Cian', c: '#00E5FF' }, { n: 'Verde', c: '#2BFF88' },
+  { n: 'Amarillo', c: '#FFE600' }, { n: 'Naranja', c: '#FF7A1A' }, { n: 'Rosa', c: '#FF3FA4' }, { n: 'Blanco', c: '#E9E9F2' }
+];
+/* Colores pastel de la versión 1.0 y su equivalente neón (lo usa la migración a datos v2) */
+const PASTEL_A_NEON = {
+  '#A99BE6': '#B45CFF', '#8FA8D8': '#3D8BFF', '#7CC4C0': '#00E5FF', '#8DBF8B': '#2BFF88',
+  '#D4B072': '#FFE600', '#E0907A': '#FF7A1A', '#C79AC0': '#FF3FA4', '#B4B3BD': '#E9E9F2'
+};
+
+function svg(cuerpo, tam) {
+  tam = tam || 22;
+  return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + cuerpo + '</svg>';
+}
+const ICO = {
+  izq: svg('<path d="M15 6l-6 6 6 6"/>', 20),
+  der: svg('<path d="M9 6l6 6-6 6"/>', 20),
+  ajustes: svg('<path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.5"/><circle cx="8" cy="17" r="2.5"/>'),
+  mas: svg('<path d="M12 5v14M5 12h14"/>', 18),
+  x: svg('<path d="M6 6l12 12M18 6L6 18"/>', 20),
+  nota: svg('<path d="M4 20h4L19 9l-4-4L4 16v4z"/>', 14),
+  check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+};
+
+const $vista = document.getElementById('vista');
+const $compacta = document.getElementById('compacta');
+const $bp = document.getElementById('barra-pacto');
+const $capas = document.getElementById('capas');
+const $avisos = document.getElementById('avisos');
+const $archivo = document.getElementById('archivo');
+
+/* ---------- 2. Utilidades ---------- */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
+}
+function lim(n, a, b) { return Math.min(b, Math.max(a, n)); }
+function nuevoId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function esObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
+function esHex(x) { return typeof x === 'string' && /^#[0-9a-fA-F]{6}$/.test(x); }
+function plural(n, uno, varios) { return n + ' ' + (n === 1 ? uno : varios); }
+
+/* Fechas: cada semana se identifica por la fecha de su lunes, "AAAA-MM-DD" */
+function p2(n) { return n < 10 ? '0' + n : '' + n; }
+function iso(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+function deIso(s) { const a = s.split('-'); return new Date(+a[0], +a[1] - 1, +a[2]); }
+function esIso(x) { return typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x) && !isNaN(deIso(x).getTime()); }
+function hoyIso() { return iso(new Date()); }
+function lunes(d) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+function aLunes(s) { return iso(lunes(deIso(s))); }
+function semanaHoy() { return iso(lunes(new Date())); }
+function masSemanas(w, n) { const d = deIso(w); d.setDate(d.getDate() + 7 * n); return iso(d); }
+function difSemanas(a, b) { return Math.round((deIso(b) - deIso(a)) / 6048e5); }
+function fechaCorta(s, conAnio) { const d = deIso(s); return d.getDate() + ' ' + MESES[d.getMonth()] + (conAnio ? ' ' + d.getFullYear() : ''); }
+function domingo(w) { const d = deIso(w); d.setDate(d.getDate() + 6); return iso(d); }
+function etiquetaSemana(w) {
+  const a = deIso(w), b = deIso(domingo(w));
+  const anio = b.getFullYear() !== new Date().getFullYear() ? ' ' + b.getFullYear() : '';
+  if (a.getMonth() === b.getMonth()) return a.getDate() + ' – ' + b.getDate() + ' ' + MESES[b.getMonth()] + anio;
+  return a.getDate() + ' ' + MESES[a.getMonth()] + ' – ' + b.getDate() + ' ' + MESES[b.getMonth()] + anio;
+}
+function relativa(w) {
+  const n = difSemanas(semanaHoy(), w);
+  if (n === 0) return 'Semana actual';
+  if (n === -1) return 'Semana pasada';
+  if (n === 1) return 'Próxima semana';
+  return n < 0 ? 'Hace ' + (-n) + ' semanas' : 'En ' + n + ' semanas';
+}
+
+/* Colores */
+function hexRgb(h) { return [1, 3, 5].map(function (i) { return parseInt(h.slice(i, i + 2), 16); }); }
+function mezclar(a, b, t) {
+  const pa = hexRgb(a), pb = hexRgb(b);
+  return '#' + [0, 1, 2].map(function (i) { return p2h(Math.round(pa[i] + (pb[i] - pa[i]) * t)); }).join('');
+}
+function p2h(n) { const s = n.toString(16); return s.length < 2 ? '0' + s : s; }
+
+/* ---------- 3. Datos, guardado y migraciones ---------- */
+function datosNuevos() {
+  return {
+    version: VERSION_DATOS,
+    ajustes: { colorSemana: '#B45CFF', colorActividad: 'auto', colorCategoria: 'auto' },
+    categorias: [],
+    pactos: [],
+    tareas: []      // lista de pendientes: { id, texto, hecho }
+  };
+}
+
+/* Cada actualización que cambie el formato de los datos agrega aquí un paso.
+   Ejemplo:  1: function (d) { ...cambios...; d.version = 2; return d; }      */
+function aNeon(c) { return (typeof c === 'string' && PASTEL_A_NEON[c.toUpperCase()]) || c; }
+const MIGRACIONES = {
+  /* v1 -> v2 (app 1.1.0): cada pacto gana "notas" (una por semana) y los colores pastel pasan a neón */
+  1: function (d) {
+    if (esObj(d.ajustes)) ['colorSemana', 'colorActividad', 'colorCategoria'].forEach(function (k) { d.ajustes[k] = aNeon(d.ajustes[k]); });
+    if (Array.isArray(d.categorias)) d.categorias.forEach(function (c) { if (esObj(c)) c.color = aNeon(c.color); });
+    if (Array.isArray(d.pactos)) d.pactos.forEach(function (p) { if (esObj(p) && !esObj(p.notas)) p.notas = {}; });
+    d.version = 2;
+    return d;
+  },
+  /* v2 -> v3 (app 1.2.0): nueva lista de pendientes */
+  2: function (d) {
+    if (!Array.isArray(d.tareas)) d.tareas = [];
+    d.version = 3;
+    return d;
+  }
+};
+
+function migrar(d) {
+  while (d.version < VERSION_DATOS) {
+    const paso = MIGRACIONES[d.version];
+    if (!paso) throw new Error('Falta la migración desde la versión ' + d.version);
+    d = paso(d);
+  }
+  return d;
+}
+
+function ent(x, min, max, def) { x = Math.round(Number(x)); return isFinite(x) ? lim(x, min, max) : def; }
+
+/* Revisa que los datos tengan la forma correcta (protege contra respaldos dañados). */
+function sanear(d) {
+  const out = datosNuevos();
+  if (esObj(d.ajustes)) {
+    if (esHex(d.ajustes.colorSemana)) out.ajustes.colorSemana = d.ajustes.colorSemana;
+    ['colorActividad', 'colorCategoria'].forEach(function (k) {
+      const v = d.ajustes[k];
+      if (v === 'auto' || esHex(v)) out.ajustes[k] = v;
+    });
+  }
+  const idsCat = {}, idsPacto = {};
+  (Array.isArray(d.categorias) ? d.categorias : []).forEach(function (c) {
+    if (!esObj(c) || typeof c.nombre !== 'string' || !c.nombre.trim()) return;
+    const id = String(c.id || nuevoId());
+    if (idsCat[id]) return;
+    idsCat[id] = true;
+    out.categorias.push({ id: id, nombre: c.nombre.trim().slice(0, 40), color: esHex(c.color) ? c.color : PALETA[0].c });
+  });
+  (Array.isArray(d.pactos) ? d.pactos : []).forEach(function (p) {
+    if (!esObj(p) || typeof p.nombre !== 'string' || !p.nombre.trim()) return;
+    const periodos = (Array.isArray(p.periodos) ? p.periodos : []).filter(function (x) { return esObj(x) && esIso(x.inicio); }).map(function (x) {
+      return { inicio: aLunes(x.inicio), semanas: x.semanas == null ? null : ent(x.semanas, 1, MAX_SEMANAS, 4), fin: esIso(x.fin) ? aLunes(x.fin) : null };
+    });
+    if (!periodos.length) return;
+    periodos.sort(function (a, b) { return a.inicio < b.inicio ? -1 : a.inicio > b.inicio ? 1 : 0; });
+    let metas = (Array.isArray(p.metas) ? p.metas : []).filter(function (x) { return esObj(x) && esIso(x.desde); }).map(function (x) {
+      const min = ent(x.min, 1, MAX_VECES, 1);
+      return { desde: aLunes(x.desde), min: min, ideal: Math.max(min, ent(x.ideal, 1, MAX_VECES, min)) };
+    });
+    if (!metas.length) metas = [{ desde: periodos[0].inicio, min: 1, ideal: 1 }];
+    metas.sort(function (a, b) { return a.desde < b.desde ? -1 : a.desde > b.desde ? 1 : 0; });
+    const registros = {};
+    if (esObj(p.registros)) Object.keys(p.registros).forEach(function (k) {
+      if (!esIso(k)) return;
+      const n = ent(p.registros[k], 0, MAX_VECES, 0);
+      if (n > 0) registros[aLunes(k)] = n;
+    });
+    const notas = {};
+    if (esObj(p.notas)) Object.keys(p.notas).forEach(function (k) {
+      if (!esIso(k) || typeof p.notas[k] !== 'string') return;
+      const t = p.notas[k].trim().slice(0, MAX_NOTA);
+      if (t) notas[aLunes(k)] = t;
+    });
+    let cat = String(p.categoriaId || '');
+    if (!idsCat[cat]) {
+      let sc = out.categorias.find(function (c) { return c.nombre === 'Sin categoría'; });
+      if (!sc) { sc = { id: nuevoId(), nombre: 'Sin categoría', color: '#E9E9F2' }; out.categorias.push(sc); idsCat[sc.id] = true; }
+      cat = sc.id;
+    }
+    let id = String(p.id || nuevoId());
+    if (idsPacto[id]) id = nuevoId();
+    idsPacto[id] = true;
+    const archivado = p.estado === 'archivado';
+    out.pactos.push({
+      id: id, nombre: p.nombre.trim().slice(0, 60), categoriaId: cat,
+      estado: archivado ? 'archivado' : 'activo',
+      cierre: archivado ? {
+        fecha: esObj(p.cierre) && esIso(p.cierre.fecha) ? p.cierre.fecha : hoyIso(),
+        motivo: esObj(p.cierre) && p.cierre.motivo === 'fin' ? 'fin' : 'manual'
+      } : null,
+      creado: esIso(p.creado) ? p.creado : hoyIso(),
+      periodos: periodos, metas: metas, registros: registros, notas: notas
+    });
+  });
+  const idsTarea = {};
+  (Array.isArray(d.tareas) ? d.tareas : []).forEach(function (t) {
+    if (!esObj(t) || typeof t.texto !== 'string' || !t.texto.trim()) return;
+    let id = String(t.id || nuevoId());
+    if (idsTarea[id]) id = nuevoId();
+    idsTarea[id] = true;
+    out.tareas.push({ id: id, texto: t.texto.trim().slice(0, MAX_TAREA), hecho: t.hecho === true });
+  });
+  return out;
+}
+
+let avisoInicial = '';
+let migrado = false;
+function cargar() {
+  let crudo = null;
+  try { crudo = localStorage.getItem(CLAVE); } catch (e) { avisoInicial = 'Este navegador no permite guardar datos.'; }
+  if (!crudo) return datosNuevos();
+  try {
+    let d = JSON.parse(crudo);
+    if (!esObj(d) || typeof d.version !== 'number') throw new Error('formato');
+    if (d.version !== VERSION_DATOS) {
+      // Antes de tocar nada se guarda una copia de los datos tal como estaban.
+      try { localStorage.setItem('pactos.respaldo.v' + d.version, crudo); } catch (e) {}
+    }
+    if (d.version < VERSION_DATOS) { d = migrar(d); migrado = true; }
+    return sanear(d);
+  } catch (e) {
+    try { localStorage.setItem('pactos.respaldo.error', crudo); } catch (e2) {}
+    avisoInicial = 'No se pudieron leer los datos guardados. Se conservó una copia de seguridad.';
+    return datosNuevos();
+  }
+}
+let falloGuardado = false;
+function persistir() {
+  try { localStorage.setItem(CLAVE, JSON.stringify(datos)); falloGuardado = false; }
+  catch (e) {
+    if (!falloGuardado) aviso('No se pudo guardar en este dispositivo. Los cambios se perderán al cerrar.');
+    falloGuardado = true;
+  }
+}
+
+let datos = cargar();
+if (migrado) persistir();   // deja guardados los datos ya convertidos (la copia anterior queda en pactos.respaldo.v1)
+
+/* ---------- 4. Modelo: periodos, metas y cálculos ---------- */
+function buscarPacto(id) { return datos.pactos.find(function (p) { return p.id === id; }) || null; }
+function buscarCat(id) { return datos.categorias.find(function (c) { return c.id === id; }) || null; }
+function ultimo(p) { return p.periodos[p.periodos.length - 1]; }
+
+/* Última semana activa de un periodo (null = sin fecha de fin) */
+function finPeriodo(per) {
+  let f = null;
+  if (per.semanas) f = masSemanas(per.inicio, per.semanas - 1);
+  if (per.fin && (f === null || per.fin < f)) f = per.fin;
+  return f;
+}
+function activoEn(p, w) {
+  for (let i = 0; i < p.periodos.length; i++) {
+    const per = p.periodos[i];
+    if (per.inicio <= w) { const f = finPeriodo(per); if (f === null || w <= f) return true; }
+  }
+  return false;
+}
+/* Meta vigente en una semana (la meta puede cambiar con el tiempo sin alterar el historial) */
+function metaEn(p, w) {
+  let m = p.metas[0];
+  for (let i = 0; i < p.metas.length; i++) if (p.metas[i].desde <= w) m = p.metas[i];
+  return m;
+}
+function cuenta(p, w) { return Math.min(p.registros[w] || 0, metaEn(p, w).ideal); }
+function metaTxt(m) { return m.min === m.ideal ? plural(m.min, 'vez', 'veces') : m.min + '–' + m.ideal + ' veces'; }
+
+/* Avance de una semana. El porcentaje se basa en los mínimos; lo demás es "extra". */
+function sumaSemana(w, filtro) {
+  const r = { hecho: 0, req: 0, extra: 0, cumplidos: 0, total: 0 };
+  datos.pactos.forEach(function (p) {
+    if (filtro && !filtro(p)) return;
+    if (!activoEn(p, w)) return;
+    const m = metaEn(p, w), c = cuenta(p, w);
+    r.total++; r.req += m.min; r.hecho += Math.min(c, m.min); r.extra += Math.max(0, c - m.min);
+    if (c >= m.min) r.cumplidos++;
+  });
+  r.pct = r.req ? Math.round(r.hecho / r.req * 100) : null;
+  return r;
+}
+
+/* Todas las semanas en las que un pacto estuvo activo, hasta la semana indicada */
+function semanasActivas(p, hasta) {
+  const visto = {}, out = [];
+  p.periodos.forEach(function (per) {
+    const f = finPeriodo(per), fin = f === null || f > hasta ? hasta : f;
+    for (let w = per.inicio, i = 0; w <= fin && i < 2000; w = masSemanas(w, 1), i++) {
+      if (!visto[w]) { visto[w] = true; out.push(w); }
+    }
+  });
+  return out.sort();
+}
+
+/* Resumen de un pacto sobre una lista de semanas.
+   La semana en curso no cuenta para el promedio (todavía no termina), salvo que sea la única. */
+function statsPacto(p, semanas, hoy, todoCuenta) {
+  const r = { hecho: 0, req: 0, cumplidas: 0, totales: 0, veces: 0, enCurso: false };
+  let cur = null;
+  semanas.forEach(function (w) {
+    if (!activoEn(p, w)) return;
+    const m = metaEn(p, w), c = cuenta(p, w);
+    r.veces += c;
+    const fila = { hecho: Math.min(c, m.min), req: m.min, ok: c >= m.min ? 1 : 0 };
+    if (w < hoy || todoCuenta) { r.hecho += fila.hecho; r.req += fila.req; r.totales++; r.cumplidas += fila.ok; }
+    else cur = fila;
+  });
+  if (!r.totales && cur) { r.hecho = cur.hecho; r.req = cur.req; r.totales = 1; r.cumplidas = cur.ok; r.enCurso = true; }
+  r.pct = r.req ? Math.round(r.hecho / r.req * 100) : null;
+  return r;
+}
+
+function semanasRango(n) {
+  const hoy = semanaHoy();
+  let ini;
+  if (n) ini = masSemanas(hoy, -(n - 1));
+  else {
+    ini = hoy;
+    datos.pactos.forEach(function (p) { p.periodos.forEach(function (per) { if (per.inicio < ini) ini = per.inicio; }); });
+    const tope = masSemanas(hoy, -519);
+    if (ini < tope) ini = tope;
+  }
+  const out = [];
+  for (let w = ini; w <= hoy; w = masSemanas(w, 1)) out.push(w);
+  return out;
+}
+
+/* Pactos con duración que ya llegaron a su última semana y esperan una decisión */
+function pendientes() {
+  const hoy = semanaHoy();
+  return datos.pactos.filter(function (p) {
+    if (p.estado !== 'activo') return false;
+    const up = ultimo(p), f = finPeriodo(up);
+    return f !== null && up.inicio <= hoy && hoy >= f;
+  });
+}
+
+function colorActividad(cat) { const a = datos.ajustes.colorActividad; return a === 'auto' ? (cat ? cat.color : datos.ajustes.colorSemana) : a; }
+function colorCategoria(cat) { const a = datos.ajustes.colorCategoria; return a === 'auto' ? (cat ? cat.color : datos.ajustes.colorSemana) : a; }
+function aplicarAcento() {
+  const c = datos.ajustes.colorSemana, s = document.documentElement.style;
+  s.setProperty('--acento', c);
+  s.setProperty('--acento-texto', mezclar(c, '#FFFFFF', 0.35));
+  s.setProperty('--acento-suave', mezclar(FONDO, c, 0.2));
+}
+
+/* ---------- 5. Estado de la pantalla ---------- */
+const estado = {
+  vista: 'semana',
+  semana: semanaHoy(),
+  hoyVisto: semanaHoy(),
+  sel: null,        // actividad tocada en Análisis (sus anillos salen arriba al bajar)
+  exp: null,        // pacto con las opciones abiertas en Semana
+  rango: 12,        // periodo del análisis: 4, 12 o 0 (todo)
+  borrador: '',     // lo que se va escribiendo en "Agregar pendiente"
+  compacta: false
+};
+
+/* ---------- 6. Piezas visuales ---------- */
+function anillo(tam, grosor, pct, color, centro) {
+  const r = (tam - grosor) / 2, c = 2 * Math.PI * r, m = tam / 2;
+  const d = lim(pct || 0, 0, 100) / 100 * c;
+  let h = '<div class="anillo" style="width:' + tam + 'px;height:' + tam + 'px"><svg width="' + tam + '" height="' + tam + '" viewBox="0 0 ' + tam + ' ' + tam + '" aria-hidden="true">';
+  h += '<circle cx="' + m + '" cy="' + m + '" r="' + r + '" fill="none" stroke="var(--pista)" stroke-width="' + grosor + '"/>';
+  if (d > 0.5) h += '<circle cx="' + m + '" cy="' + m + '" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="' + grosor + '" stroke-linecap="round" stroke-dasharray="' + d.toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 ' + m + ' ' + m + ')"/>';
+  return h + '</svg><div class="anillo-c">' + centro + '</div></div>';
+}
+function pctTxt(p) { return p === null ? '–' : p + '%'; }
+function cabSimple(titulo) {
+  return '<header class="cab simple"><span></span><h1>' + titulo + '</h1><button class="icono" data-a="ajustes" aria-label="Ajustes">' + ICO.ajustes + '</button></header>';
+}
+function vacio(titulo, texto) { return '<div class="vacio"><strong>' + titulo + '</strong>' + texto + '</div>'; }
+function paso(campo, valor, etq) {
+  return '<div class="paso"><button data-a="menos" data-c="' + campo + '" aria-label="Menos ' + etq + '">−</button><output aria-label="' + etq + '">' + valor + '</output><button data-a="mas" data-c="' + campo + '" aria-label="Más ' + etq + '">+</button></div>';
+}
+function muestras(accion, extra, elegido) {
+  return PALETA.map(function (x) {
+    return '<button class="muestra" data-a="' + accion + '" ' + extra + ' data-c="' + x.c + '" aria-pressed="' + (elegido === x.c) + '" aria-label="' + x.n + '"><span style="background:' + x.c + '"></span></button>';
+  }).join('');
+}
+
+/* ---------- 7. Pantalla: Semana ---------- */
+function htmlSemana() {
+  const w = estado.semana, hoy = semanaHoy();
+  const lista = datos.pactos.filter(function (p) { return activoEn(p, w); });
+  let h = '<header class="cab"><span></span>' +
+    '<button class="redondo" data-a="sem" data-d="-1" aria-label="Semana anterior">' + ICO.izq + '</button>' +
+    '<button class="cab-fecha" data-a="sem-hoy" aria-label="' + etiquetaSemana(w) + ', ' + relativa(w) + (w === hoy ? '' : '. Tocar para volver a la semana actual') + '">' +
+    '<span class="cab-t' + (etiquetaSemana(w).length > 14 ? ' larga' : '') + '">' + etiquetaSemana(w) + '</span><span class="cab-s">' + relativa(w) + (w === hoy ? '' : ' · ir a hoy') + '</span></button>' +
+    '<button class="redondo" data-a="sem" data-d="1" aria-label="Semana siguiente">' + ICO.der + '</button>' +
+    '<button class="icono" data-a="ajustes" aria-label="Ajustes">' + ICO.ajustes + '</button></header>';
+
+  if (w === hoy) {
+    pendientes().forEach(function (p) {
+      const f = finPeriodo(ultimo(p));
+      h += '<div class="pend"><div class="pend-t"><strong>' + esc(p.nombre) + '</strong><span>' +
+        (f === hoy ? 'Última semana del experimento' : 'Su experimento terminó el ' + fechaCorta(domingo(f))) +
+        '</span></div><button class="btn btn-pri btn-ch" data-a="cerrar-exp" data-id="' + esc(p.id) + '">Decidir</button></div>';
+    });
+  }
+
+  if (!lista.length) {
+    h += datos.pactos.length
+      ? vacio('Sin pactos esta semana', 'No hay pactos activos en estas fechas.')
+      : vacio('Propón tus pactos de la semana', 'Agrega actividades y ve tachándolas conforme las hagas, sin amarrarlas a un día.');
+  } else {
+    h += '<section class="lista" aria-label="Pactos">';
+    lista.forEach(function (p) { h += htmlFilaPacto(p, w); });
+    h += '</section>';
+  }
+  h += '<div class="centro"><button class="btn btn-borde" data-a="nuevo">' + ICO.mas + 'Nuevo pacto</button></div>';
+  return h;
+}
+
+function htmlFilaPacto(p, w) {
+  const m = metaEn(p, w), c = cuenta(p, w), cat = buscarCat(p.categoriaId), abierto = estado.exp === p.id;
+  const nota = (p.notas || {})[w];
+  let circ = '';
+  for (let k = 0; k < m.ideal; k++) {
+    const on = k < c;
+    circ += '<button class="c' + (on ? ' on' : '') + (k >= m.min ? ' x' : '') + '" data-a="marca" data-id="' + esc(p.id) + '" data-k="' + k + '" aria-pressed="' + on + '" aria-label="' +
+      esc((on ? 'Destachar' : 'Tachar') + ' vez ' + (k + 1) + ' de ' + p.nombre) + '"><span></span></button>';
+  }
+  const meta = metaTxt(m) + ' · ' + plural(c, 'hecha', 'hechas') + (p.estado === 'archivado' ? ' · archivado' : '');
+  return '<div class="pacto' + (abierto ? ' sel' : '') + '" style="--cc:' + (cat ? cat.color : '#E9E9F2') + '">' +
+    '<button class="pacto-info" data-a="opc" data-id="' + esc(p.id) + '" aria-expanded="' + abierto + '">' +
+    '<span class="punto" style="background:' + (cat ? cat.color : '#E9E9F2') + '"></span>' +
+    '<span class="pacto-txt"><span class="pacto-nom">' + esc(p.nombre) + '</span><span class="pacto-meta">' + meta + '</span></span></button>' +
+    '<div class="circulos">' + circ + '</div>' +
+    (nota ? '<button class="pacto-nota" data-a="nota" data-id="' + esc(p.id) + '">' + ICO.nota + '<span>' + esc(nota) + '</span></button>' : '') +
+    '</div>';
+}
+
+/* Notas guardadas de un pacto (de la más reciente a la más antigua), plegadas */
+function htmlNotas(p, desde, hasta) {
+  const ks = Object.keys(p.notas || {}).filter(function (k) { return (!desde || k >= desde) && (!hasta || k <= hasta); }).sort().reverse();
+  if (!ks.length) return '';
+  return '<details class="notas"><summary>Ver notas (' + ks.length + ')</summary><ul>' + ks.map(function (k) {
+    return '<li><span>' + etiquetaSemana(k) + '</span><p>' + esc(p.notas[k]) + '</p></li>';
+  }).join('') + '</ul></details>';
+}
+
+/* Barra de arriba en Análisis: aparece al bajar. Con una actividad tocada muestra también su anillo y el de su categoría. */
+let calc = { acts: {}, cats: {} };   // promedios del periodo elegido (se calculan al pintar Análisis)
+function pintarCompacta() {
+  if (estado.vista !== 'analisis' || !datos.pactos.length) { $compacta.innerHTML = ''; return; }
+  const w = semanaHoy(), s = sumaSemana(w);
+  const p = estado.sel ? buscarPacto(estado.sel) : null;
+  let h = '<button class="comp-item" data-a="arriba" aria-label="Avance de esta semana ' + pctTxt(s.pct) + '. Volver arriba">' +
+    anillo(46, 5, s.pct, 'var(--acento)', '<span class="comp-n">' + pctTxt(s.pct) + '</span>') + '<span class="comp-e">Esta semana</span></button>';
+  if (p && (p.id in calc.acts)) {
+    const cat = buscarCat(p.categoriaId), pa = calc.acts[p.id];
+    const pc = p.categoriaId in calc.cats ? calc.cats[p.categoriaId] : null;
+    h += '<div class="comp-item">' + anillo(46, 5, pa, colorActividad(cat), '<span class="comp-n">' + pctTxt(pa) + '</span>') +
+      '<span class="comp-e">' + esc(p.nombre) + '</span></div>';
+    h += '<div class="comp-item">' + anillo(46, 5, pc, colorCategoria(cat), '<span class="comp-n">' + pctTxt(pc) + '</span>') +
+      '<span class="comp-e">' + esc(cat ? cat.nombre : 'Categoría') + '</span></div>';
+  } else {
+    h += '<div class="comp-txt"><span class="comp-t">' + (estado.rango ? 'Últimas ' + estado.rango + ' semanas' : 'Todo el historial') + '</span>' +
+      '<span class="comp-s">Toca una actividad para ver sus anillos</span></div>';
+  }
+  $compacta.innerHTML = '<div class="comp-in">' + h + '</div>';
+}
+
+/* Opciones del pacto tocado en Semana */
+function pintarBarraPacto() {
+  const p = estado.vista === 'semana' && estado.exp ? buscarPacto(estado.exp) : null;
+  if (!p || !activoEn(p, estado.semana)) { $bp.innerHTML = ''; $vista.classList.remove('con-bp'); return; }
+  $vista.classList.add('con-bp');
+  const archivado = p.estado === 'archivado';
+  $bp.innerHTML = '<div class="bp"><div class="bp-in"><div class="bp-cab"><span class="bp-nom">' + esc(p.nombre) +
+    '</span><button class="icono" data-a="des" aria-label="Cerrar opciones">' + ICO.x + '</button></div>' +
+    '<div class="bp-b"><button class="btn" data-a="nota" data-id="' + esc(p.id) + '">Nota</button>' +
+    (archivado ? '' : '<button class="btn" data-a="editar" data-id="' + esc(p.id) + '">Editar</button>' +
+      '<button class="btn" data-a="cerrar-exp" data-id="' + esc(p.id) + '">Cerrar experimento</button>') + '</div>' +
+    (archivado ? '<p class="nota bp-nota">Este pacto está en el Archivo. Desde ahí puedes reactivarlo.</p>' : '') +
+    '</div></div>';
+}
+
+function revisarScroll() {
+  const el = document.getElementById('hero-anillo');
+  const comp = estado.vista === 'analisis' && !!el && el.getBoundingClientRect().bottom < 40;
+  if (comp === estado.compacta && $compacta.classList.contains('visible') === comp) return;
+  estado.compacta = comp;
+  $compacta.classList.toggle('visible', comp);
+  $compacta.setAttribute('aria-hidden', String(!comp));
+}
+
+/* ---------- 8. Pantalla: Análisis ---------- */
+function grafica(serie, hoy) {
+  const W = Math.max(240, Math.min(document.documentElement.clientWidth, 520) - 40);
+  const top = 10, base = 150, izq = 6, der = 40, n = serie.length;
+  const x = function (i) { return n === 1 ? (izq + W - der) / 2 : izq + i * (W - der - izq) / (n - 1); };
+  const y = function (v) { return base - (base - top) * v / 100; };
+  let lineas = '', areas = '', puntos = '', seg = [];
+  const cerrar = function () {
+    if (!seg.length) return;
+    const pts = seg.map(function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join(' ');
+    if (seg.length > 1) {
+      areas += '<polygon points="' + seg[0][0].toFixed(1) + ',' + base + ' ' + pts + ' ' + seg[seg.length - 1][0].toFixed(1) + ',' + base + '" fill="var(--acento)" fill-opacity="0.12"/>';
+      lineas += '<polyline points="' + pts + '" fill="none" stroke="var(--acento)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+    } else if (n > 16 && !seg[0][2]) {
+      puntos += '<circle cx="' + seg[0][0].toFixed(1) + '" cy="' + seg[0][1].toFixed(1) + '" r="3" fill="var(--acento)"/>';
+    }
+    seg = [];
+  };
+  serie.forEach(function (s, i) {
+    if (s.pct === null) { cerrar(); return; }
+    const actual = s.w === hoy, q = [x(i), y(s.pct), actual];
+    seg.push(q);
+    if (actual) puntos += '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="5" fill="' + FONDO + '" stroke="var(--acento)" stroke-width="2.5"/>';
+    else if (n <= 16) puntos += '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="3" fill="var(--acento)"/>';
+  });
+  cerrar();
+  const fin = W - der;
+  return '<div class="graf"><svg width="' + W + '" height="160" viewBox="0 0 ' + W + ' 160" role="img" aria-label="Gráfica del avance semanal">' +
+    '<line x1="0" y1="' + y(100) + '" x2="' + fin + '" y2="' + y(100) + '" stroke="var(--pista)" stroke-width="1" stroke-dasharray="3 4"/>' +
+    '<line x1="0" y1="' + y(50) + '" x2="' + fin + '" y2="' + y(50) + '" stroke="var(--pista)" stroke-width="1" stroke-dasharray="3 4"/>' +
+    '<line x1="0" y1="' + base + '" x2="' + fin + '" y2="' + base + '" stroke="var(--pista)" stroke-width="1"/>' +
+    '<text x="' + (fin + 8) + '" y="' + (y(100) + 4) + '">100%</text><text x="' + (fin + 8) + '" y="' + (y(50) + 4) + '">50%</text><text x="' + (fin + 8) + '" y="' + (base + 4) + '">0%</text>' +
+    areas + lineas + puntos + '</svg>' +
+    '<div class="graf-e"><span>' + (n > 1 ? fechaCorta(serie[0].w) : '') + '</span><span>Esta semana</span></div></div>';
+}
+
+function htmlAnalisis() {
+  let h = cabSimple('Análisis');
+  calc = { acts: {}, cats: {} };
+  if (!datos.pactos.length) return h + vacio('Aún no hay datos', 'Crea tu primer pacto en la sección Semana y aquí verás tu avance.');
+  const hoy = semanaHoy(), semanas = semanasRango(estado.rango), s = sumaSemana(hoy);
+
+  // Esta semana: anillo grande que, al bajar, queda reducido arriba
+  h += '<section class="hero" aria-label="Avance de esta semana"><div class="hero-sem">Esta semana · ' + etiquetaSemana(hoy) + '</div><div id="hero-anillo">' +
+    anillo(168, 10, s.pct, 'var(--acento)', '<span class="hero-n">' + pctTxt(s.pct) + '</span><span class="hero-s">' + (s.total ? 'de los mínimos' : 'sin pactos') + '</span>') +
+    '</div><div class="chips">' +
+    (s.total ? '<span class="chip">' + s.cumplidos + ' de ' + s.total + ' cumplidos</span>' : '') +
+    (s.extra ? '<span class="chip chip-a">+' + s.extra + ' extra</span>' : '') + '</div></section>';
+
+  h += '<div class="pildoras" role="group" aria-label="Periodo">' + [[4, '4 sem'], [12, '12 sem'], [0, 'Todo']].map(function (o) {
+    return '<button class="pil" data-a="rango" data-n="' + o[0] + '" aria-pressed="' + (estado.rango === o[0]) + '">' + o[1] + '</button>';
+  }).join('') + '</div>';
+
+  // Cálculos del periodo
+  const filas = [];
+  datos.pactos.forEach(function (p) {
+    const st = statsPacto(p, semanas, hoy, p.estado === 'archivado');
+    if (st.totales) filas.push({ p: p, st: st });
+  });
+  filas.sort(function (a, b) { return (b.st.pct || 0) - (a.st.pct || 0); });
+  const cats = [], veces = {};
+  let totalVeces = 0;
+  datos.categorias.forEach(function (c) {
+    let hecho = 0, req = 0, hc = 0, rc = 0;
+    filas.forEach(function (f) {
+      if (f.p.categoriaId !== c.id) return;
+      veces[c.id] = (veces[c.id] || 0) + f.st.veces;
+      totalVeces += f.st.veces;
+      if (f.st.enCurso) { hc += f.st.hecho; rc += f.st.req; } else { hecho += f.st.hecho; req += f.st.req; }
+    });
+    if (!req) { hecho = hc; req = rc; }
+    if (req) cats.push({ c: c, pct: Math.round(hecho / req * 100) });
+  });
+  cats.sort(function (a, b) { return b.pct - a.pct; });
+  filas.forEach(function (f) { calc.acts[f.p.id] = f.st.pct; });
+  cats.forEach(function (x) { calc.cats[x.c.id] = x.pct; });
+  if (estado.sel && !(estado.sel in calc.acts)) estado.sel = null;
+
+  // Distribución por categoría: barra por secciones (como el almacenamiento del celular)
+  const dist = datos.categorias.filter(function (c) { return veces[c.id] > 0; })
+    .map(function (c) { return { c: c, n: veces[c.id], pct: Math.round(veces[c.id] / totalVeces * 100) }; })
+    .sort(function (a, b) { return b.n - a.n; });
+  h += '<section class="sec" aria-label="Distribución por categoría"><h2>Distribución por categoría</h2>';
+  if (!totalVeces) h += '<p class="nota">Aún no hay actividades realizadas en este periodo.</p>';
+  else {
+    h += '<p class="sub">' + plural(totalVeces, 'vez realizada', 'veces realizadas') + ' en el periodo</p>' +
+      '<div class="dist" role="img" aria-label="' + esc(dist.map(function (x) { return x.c.nombre + ' ' + x.pct + '%'; }).join(', ')) + '">' +
+      dist.map(function (x) { return '<span style="flex:' + x.n + ' 1 0;background:' + x.c.color + '"></span>'; }).join('') + '</div>' +
+      '<div class="leyenda">' + dist.map(function (x) {
+        return '<div class="ley"><span class="punto" style="background:' + x.c.color + '"></span><span class="ley-n">' + esc(x.c.nombre) +
+          '</span><span class="ley-v"><b>' + x.pct + '%</b> · ' + plural(x.n, 'vez', 'veces') + '</span></div>';
+      }).join('') + '</div>';
+  }
+  h += '</section>';
+
+  // Tendencia semanal
+  const serie = semanas.map(function (w) { return { w: w, pct: sumaSemana(w).pct }; });
+  while (serie.length > 1 && serie[0].pct === null) serie.shift();
+  const completas = serie.filter(function (x) { return x.w < hoy && x.pct !== null; });
+  let resumen = 'Todavía sin semanas con pactos';
+  if (completas.length) {
+    resumen = 'Promedio ' + Math.round(completas.reduce(function (a, x) { return a + x.pct; }, 0) / completas.length) + '% · ' +
+      plural(completas.length, 'semana completa', 'semanas completas');
+  } else if (s.pct !== null) resumen = 'Semana en curso: ' + s.pct + '%';
+  h += '<section class="sec" aria-label="Tendencia semanal"><h2>Tendencia semanal</h2><p class="sub">' + resumen + '</p>' + grafica(serie, hoy) + '</section>';
+
+  // Por actividad
+  h += '<section class="sec" aria-label="Por actividad"><h2>Por actividad</h2>';
+  if (!filas.length) h += '<p class="nota">No hubo pactos activos en este periodo.</p>';
+  else {
+    h += '<div class="rejilla">';
+    filas.forEach(function (f) {
+      const cat = buscarCat(f.p.categoriaId), on = estado.sel === f.p.id;
+      h += '<button class="tarjeta" data-a="sel" data-id="' + esc(f.p.id) + '" aria-pressed="' + on + '">' +
+        anillo(72, 7, f.st.pct, colorActividad(cat), '<span class="tar-p">' + pctTxt(f.st.pct) + '</span>') +
+        '<span class="tar-n">' + esc(f.p.nombre) + '</span><span class="tar-d">' +
+        (f.st.enCurso ? 'semana en curso' : f.st.cumplidas + ' de ' + f.st.totales + ' sem. cumplidas') + '<br>' + plural(f.st.veces, 'vez', 'veces') +
+        (f.p.estado === 'archivado' ? ' · archivado' : '') + '</span></button>';
+    });
+    h += '</div>';
+  }
+  h += '</section>';
+
+  // Cumplimiento por categoría
+  if (cats.length) {
+    h += '<section class="sec" aria-label="Cumplimiento por categoría"><h2>Cumplimiento por categoría</h2><div class="barras">';
+    cats.forEach(function (x) {
+      const col = colorCategoria(x.c);
+      h += '<div class="barra"><div class="barra-r" style="width:' + x.pct + '%;background:' + col + '"></div><div class="barra-c"><span><span class="punto" style="background:' + col + '"></span>' +
+        esc(x.c.nombre) + '</span><b>' + x.pct + '%</b></div></div>';
+    });
+    h += '</div></section>';
+  }
+  return h;
+}
+
+/* ---------- 9. Pantalla: Archivo ---------- */
+function htmlArchivo() {
+  let h = cabSimple('Archivo');
+  const hoy = semanaHoy();
+  const lista = datos.pactos.filter(function (p) { return p.estado === 'archivado'; });
+  lista.sort(function (a, b) { return a.cierre.fecha < b.cierre.fecha ? 1 : a.cierre.fecha > b.cierre.fecha ? -1 : 0; });
+  if (!lista.length) return h + vacio('Nada en el archivo', 'Aquí aparecerán los pactos que pauses o termines, con su resumen.');
+  lista.forEach(function (p) {
+    const sem = semanasActivas(p, hoy), st = statsPacto(p, sem, hoy, true), cat = buscarCat(p.categoriaId);
+    const fechas = sem.length
+      ? fechaCorta(sem[0], sem[0].slice(0, 4) !== domingo(sem[sem.length - 1]).slice(0, 4)) + ' – ' + fechaCorta(domingo(sem[sem.length - 1]), true) + ' · ' + plural(sem.length, 'semana', 'semanas')
+      : 'Sin semanas registradas';
+    const cumpl = sem.length
+      ? pctTxt(st.pct) + ' · ' + st.cumplidas + ' de ' + st.totales + ' semanas cumplidas · ' + plural(st.veces, 'vez', 'veces')
+      : '–';
+    h += '<article class="arch"><div class="arch-cab"><span class="punto" style="background:' + (cat ? cat.color : '#E9E9F2') + '"></span><h2>' + esc(p.nombre) + '</h2></div>' +
+      '<div class="arch-cat">' + esc(cat ? cat.nombre : '') + '</div><dl>' +
+      '<div><dt>Fechas</dt><dd>' + fechas + '</dd></div>' +
+      '<div><dt>Meta</dt><dd>' + metaTxt(p.metas[p.metas.length - 1]) + ' por semana</dd></div>' +
+      '<div><dt>Cumplimiento promedio</dt><dd>' + cumpl + '</dd></div>' +
+      '<div><dt>Cómo terminó</dt><dd>' + (p.cierre.motivo === 'fin' ? 'Completó su duración y se pausó' : 'Cerrado manualmente') + ' · ' + fechaCorta(p.cierre.fecha, true) + '</dd></div></dl>' + htmlNotas(p) +
+      '<div class="arch-b"><button class="btn btn-borde btn-ch" data-a="reactivar" data-id="' + esc(p.id) + '">Reactivar</button>' +
+      '<button class="btn btn-pel btn-ch" data-a="eliminar-arch" data-id="' + esc(p.id) + '">Eliminar</button></div></article>';
+  });
+  return h;
+}
+
+/* ---------- 9b. Pantalla: Pendientes (checklist sin fechas) ---------- */
+function htmlTareas() {
+  let h = cabSimple('Pendientes');
+  h += '<div class="t-nueva"><input type="text" id="t-input" value="' + esc(estado.borrador) + '" maxlength="' + MAX_TAREA +
+    '" placeholder="Agregar pendiente" aria-label="Nuevo pendiente" autocomplete="off" enterkeyhint="done">' +
+    '<button class="t-mas" data-a="t-agregar" aria-label="Agregar pendiente">' + ICO.mas + '</button></div>';
+  const fila = function (t) {
+    return '<li class="tarea"><button class="t-check" data-a="t-check" data-id="' + esc(t.id) + '" aria-pressed="' + t.hecho + '" aria-label="' +
+      esc((t.hecho ? 'Desmarcar: ' : 'Marcar como hecho: ') + t.texto) + '"><span>' + ICO.check + '</span></button>' +
+      '<button class="t-txt" data-a="t-editar" data-id="' + esc(t.id) + '">' + esc(t.texto) + '</button></li>';
+  };
+  const act = datos.tareas.filter(function (t) { return !t.hecho; });
+  const hechas = datos.tareas.filter(function (t) { return t.hecho; });
+  if (!datos.tareas.length) return h + vacio('Sin pendientes', 'Anota aquí lo que tengas por hacer, sin fechas ni plazos.');
+  h += act.length ? '<ul class="tareas" aria-label="Por hacer">' + act.map(fila).join('') + '</ul>' : '<p class="nota t-nada">Nada pendiente.</p>';
+  if (hechas.length) {
+    h += '<div class="t-sec"><h2>Completados (' + hechas.length + ')</h2><button class="btn btn-pel btn-ch" data-a="t-limpiar">Borrar completados</button></div>' +
+      '<ul class="tareas hechas" aria-label="Completados">' + hechas.map(fila).join('') + '</ul>';
+  }
+  return h;
+}
+function agregarTarea() {
+  const inp = document.getElementById('t-input');
+  const txt = (inp ? inp.value : estado.borrador).trim().slice(0, MAX_TAREA);
+  if (!txt) { if (inp) inp.focus(); return; }
+  datos.tareas.unshift({ id: nuevoId(), texto: txt, hecho: false });
+  estado.borrador = '';
+  persistir();
+  render();
+  const nuevo = document.getElementById('t-input');
+  if (nuevo) nuevo.focus();   // listo para escribir el siguiente
+}
+function abrirTarea(id) {
+  const t = datos.tareas.find(function (x) { return x.id === id; });
+  if (!t) return;
+  abrirHoja({
+    estado: { texto: t.texto, error: '' },
+    html: function (st) {
+      return cabHoja('Pendiente') +
+        '<label class="campo"><span class="etq">Texto</span><input type="text" data-campo="texto" value="' + esc(st.texto) + '" maxlength="' + MAX_TAREA + '" autocomplete="off" enterkeyhint="done"></label>' +
+        (st.error ? '<p class="error" role="alert">' + esc(st.error) + '</p>' : '') +
+        '<div class="pie"><button class="btn btn-pri btn-ancho" data-a="guardar">Guardar</button></div>' +
+        '<div class="pie2"><button class="btn btn-pel" data-a="eliminar">Eliminar pendiente</button></div>';
+    },
+    acciones: {
+      guardar: function (st, b, h) {
+        const txt = String(st.texto || '').trim().slice(0, MAX_TAREA);
+        if (!txt) { st.error = 'Escribe algo o elimina el pendiente.'; h.pintar(); return; }
+        t.texto = txt;
+        persistir();
+        cerrarHoja(function () { repintar(); });
+      },
+      eliminar: function () {
+        datos.tareas = datos.tareas.filter(function (x) { return x.id !== id; });
+        persistir();
+        cerrarHoja(function () { repintar(); aviso('Pendiente eliminado'); });
+      }
+    }
+  });
+}
+
+/* ---------- 10. Pintar ---------- */
+function render() {
+  const v = estado.vista;
+  $vista.innerHTML = v === 'semana' ? htmlSemana() : v === 'tareas' ? htmlTareas() : v === 'analisis' ? htmlAnalisis() : htmlArchivo();
+  document.querySelectorAll('.nav button').forEach(function (b) {
+    if (b.dataset.v === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
+  pintarCompacta();
+  pintarBarraPacto();
+  revisarScroll();
+}
+function repintar() { render(); pila.forEach(function (h) { h.pintar(); }); }
+
+function aviso(txt, accion) {
+  const el = document.createElement('div');
+  el.className = 'aviso';
+  const t = document.createElement('span');
+  t.textContent = txt;
+  el.appendChild(t);
+  if (accion) {
+    const b = document.createElement('button');
+    b.textContent = accion.texto;
+    b.addEventListener('click', accion.fn);
+    el.appendChild(b);
+  } else {
+    $avisos.querySelectorAll('.aviso.breve').forEach(function (x) { x.remove(); });
+    el.className += ' breve';
+    setTimeout(function () { el.remove(); }, 2800);
+  }
+  $avisos.appendChild(el);
+}
+
+/* ---------- 11. Hojas: formularios y diálogos ---------- */
+const pila = [];
+let trasCerrar = null;
+let conHistorial = true;
+
+function abrirHoja(cfg) {
+  const el = document.createElement('div');
+  el.className = 'capa' + (cfg.clase ? ' ' + cfg.clase : '');
+  el.innerHTML = '<div class="velo" data-a="__cerrar"></div><div class="hoja" role="dialog" aria-modal="true"><div class="hoja-c"></div></div>';
+  const hoja = {
+    el: el, cfg: cfg, st: cfg.estado || {}, cerrando: false, hist: false,
+    pintar: function () {
+      const sc = el.querySelector('.hoja'), y = sc.scrollTop;
+      el.querySelector('.hoja-c').innerHTML = cfg.html(hoja.st);
+      sc.scrollTop = y;
+    }
+  };
+  $avisos.querySelectorAll('.aviso.breve').forEach(function (x) { x.remove(); });
+  pila.push(hoja);
+  $capas.appendChild(el);
+  hoja.pintar();
+  document.body.classList.add('con-capa');
+  if (conHistorial) {
+    // así el botón "atrás" del celular cierra la hoja
+    try { history.pushState({ capa: pila.length }, ''); hoja.hist = true; } catch (e) { conHistorial = false; }
+  }
+  if (cfg.foco) { const f = el.querySelector(cfg.foco); if (f) f.focus(); }
+  return hoja;
+}
+function cerrarHoja(despues) {
+  if (!pila.length) { if (despues) despues(); return; }
+  const h = pila[pila.length - 1];
+  h.cerrando = true;
+  if (h.hist) { trasCerrar = despues || null; history.back(); }
+  else { quitarHoja(); if (despues) despues(); }
+}
+function quitarHoja() {
+  pila.pop().el.remove();
+  if (!pila.length) document.body.classList.remove('con-capa');
+}
+window.addEventListener('popstate', function () {
+  if (pila.length) quitarHoja();
+  const f = trasCerrar;
+  trasCerrar = null;
+  if (f) f();
+});
+
+function cabHoja(titulo) {
+  return '<div class="hoja-cab"><h2>' + titulo + '</h2><button class="icono" data-a="__cerrar" aria-label="Cerrar">' + ICO.x + '</button></div>';
+}
+function confirmar(o, si) {
+  abrirHoja({
+    clase: 'dialogo',
+    html: function () {
+      return '<h2 class="dlg-t">' + esc(o.titulo) + '</h2><p class="dlg-p">' + esc(o.texto) + '</p><div class="dlg-b">' +
+        '<button class="btn btn-gris btn-ch" data-a="__cerrar">Cancelar</button><button class="btn btn-ch ' + (o.peligro ? 'btn-rojo' : 'btn-pri') + '" data-a="si">' + esc(o.ok) + '</button></div>';
+    },
+    acciones: { si: function () { cerrarHoja(si); } }
+  });
+}
+
+/* Botones − y + de los formularios */
+function mover(st, campo, d) {
+  if (campo === 'min') { st.min = lim(st.min + d, 1, MAX_VECES); if (st.ideal < st.min) st.ideal = st.min; }
+  else if (campo === 'ideal') { st.ideal = lim(st.ideal + d, 1, MAX_VECES); if (st.min > st.ideal) st.min = st.ideal; }
+  else if (campo === 'semanas' || campo === 'mas') st[campo] = lim(st[campo] + d, 1, 52);
+  else if (campo === 'inicio') st.inicio = masSemanas(st.inicio, d);
+}
+function camposMeta(st) {
+  return '<div class="dos"><div class="col"><span>Mínimo</span>' + paso('min', st.min, 'mínimo') + '</div>' +
+    '<div class="col"><span>Ideal</span>' + paso('ideal', st.ideal, 'ideal') + '</div></div>';
+}
+function camposDuracion(st) {
+  return '<div class="chips-sel"><button class="chip-b" data-a="dur" data-v="0" aria-pressed="' + !st.dur + '">Sin fecha de fin</button>' +
+    '<button class="chip-b" data-a="dur" data-v="1" aria-pressed="' + st.dur + '">Con duración</button></div>' +
+    (st.dur ? '<div class="fila"><span>Semanas</span>' + paso('semanas', st.semanas, 'semanas') + '</div>' : '');
+}
+/* Al bajar el ideal, lo ya tachado no puede pasar del nuevo tope */
+function recortar(p, desde, ideal) {
+  Object.keys(p.registros).forEach(function (w) { if (w >= desde && p.registros[w] > ideal) p.registros[w] = ideal; });
+}
+
+/* --- Pacto: nuevo, editar o reactivar --- */
+function abrirPacto(modo, id) {
+  const hoy = semanaHoy(), p = id ? buscarPacto(id) : null;
+  let st;
+  if (p) {
+    const up = ultimo(p);
+    const ref = modo === 'editar' ? (up.inicio > hoy ? up.inicio : hoy) : '9999-12-31';
+    const m = metaEn(p, ref);
+    st = { modo: modo, id: id, nombre: p.nombre, cat: p.categoriaId, min: m.min, ideal: m.ideal, dur: !!up.semanas,
+      semanas: up.semanas ? Math.min(up.semanas, 52) : 4, semanasOrig: up.semanas, inicio: modo === 'reactivar' ? hoy : up.inicio, error: '' };
+  } else {
+    st = { modo: 'nuevo', id: null, nombre: '', cat: datos.categorias.length === 1 ? datos.categorias[0].id : null,
+      min: 2, ideal: 3, dur: false, semanas: 4, semanasOrig: null, inicio: estado.semana, error: '' };
+  }
+  abrirHoja({
+    estado: st,
+    foco: st.modo === 'nuevo' ? 'input' : null,
+    html: function (st) {
+      const titulo = st.modo === 'nuevo' ? 'Nuevo pacto' : st.modo === 'editar' ? 'Editar pacto' : 'Reactivar pacto';
+      let h = cabHoja(titulo);
+      h += '<label class="campo"><span class="etq">Nombre</span><input type="text" data-campo="nombre" value="' + esc(st.nombre) + '" maxlength="60" placeholder="Ej. Leer 20 minutos" autocomplete="off" enterkeyhint="done"></label>';
+      h += '<div class="campo"><span class="etq">Categoría</span><div class="chips-sel">' + datos.categorias.map(function (c) {
+        return '<button class="chip-b" data-a="cat" data-id="' + esc(c.id) + '" aria-pressed="' + (st.cat === c.id) + '"><span class="punto" style="background:' + c.color + '"></span>' + esc(c.nombre) + '</button>';
+      }).join('') + '<button class="chip-b" data-a="cat-nueva">' + ICO.mas + 'Nueva</button></div></div>';
+      h += '<div class="campo"><span class="etq">Meta por semana</span>' + camposMeta(st) +
+        '<p class="nota">Con el mínimo ya cuenta como cumplido. Si mínimo e ideal son iguales, es una meta fija.' +
+        (st.modo === 'editar' ? ' Si cambias la meta, aplica desde esta semana; las anteriores conservan la suya.' : '') + '</p></div>';
+      h += '<div class="campo"><span class="etq">Duración</span>' + camposDuracion(st) + '</div>';
+      h += '<div class="campo"><span class="etq">Semana de inicio</span><div class="paso ancho"><button data-a="menos" data-c="inicio" aria-label="Semana anterior">‹</button>' +
+        '<output>' + etiquetaSemana(st.inicio) + '<small>' + relativa(st.inicio) + '</small></output><button data-a="mas" data-c="inicio" aria-label="Semana siguiente">›</button></div></div>';
+      if (st.error) h += '<p class="error" role="alert">' + esc(st.error) + '</p>';
+      h += '<div class="pie"><button class="btn btn-pri btn-ancho" data-a="guardar">' + (st.modo === 'reactivar' ? 'Reactivar' : 'Guardar') + '</button></div>' +
+        (st.modo === 'editar' ? '<div class="pie2"><button class="btn btn-pel" data-a="eliminar">Eliminar pacto</button></div>' : '');
+      return h;
+    },
+    acciones: {
+      cat: function (st, b, h) { st.cat = b.dataset.id; st.error = ''; h.pintar(); },
+      'cat-nueva': function (st, b, h) { abrirCategoria(null, function (idCat) { st.cat = idCat; st.error = ''; h.pintar(); }); },
+      menos: function (st, b, h) { mover(st, b.dataset.c, -1); h.pintar(); },
+      mas: function (st, b, h) { mover(st, b.dataset.c, 1); h.pintar(); },
+      dur: function (st, b, h) { st.dur = b.dataset.v === '1'; h.pintar(); },
+      guardar: function (st, b, h) {
+        const nombre = st.nombre.trim();
+        if (!nombre) { st.error = 'Escribe un nombre para el pacto.'; h.pintar(); return; }
+        if (!st.cat || !buscarCat(st.cat)) { st.error = 'Elige o crea una categoría.'; h.pintar(); return; }
+        const hoy = semanaHoy();
+        let msg = 'Pacto guardado';
+        if (st.modo === 'nuevo') {
+          datos.pactos.push({ id: nuevoId(), nombre: nombre, categoriaId: st.cat, estado: 'activo', cierre: null, creado: hoyIso(),
+            periodos: [{ inicio: st.inicio, semanas: st.dur ? st.semanas : null, fin: null }],
+            metas: [{ desde: st.inicio, min: st.min, ideal: st.ideal }], registros: {} });
+          msg = st.inicio === estado.semana ? 'Pacto creado' : 'Pacto creado. Empieza el ' + fechaCorta(st.inicio) + '.';
+        } else {
+          const p = buscarPacto(st.id);
+          p.nombre = nombre; p.categoriaId = st.cat;
+          if (st.modo === 'editar') {
+            const up = ultimo(p);
+            const refA = up.inicio > hoy ? up.inicio : hoy, antes = metaEn(p, refA);
+            up.inicio = st.inicio;
+            // La duración solo cambia si se tocó (un periodo ya extendido puede pasar de 52 semanas).
+            if (!st.dur) up.semanas = null;
+            else if (!(st.semanasOrig && st.semanasOrig > 52 && st.semanas === 52)) up.semanas = st.semanas;
+            if (antes.min !== st.min || antes.ideal !== st.ideal) {
+              const desde = up.inicio > hoy ? up.inicio : hoy;
+              p.metas = p.metas.filter(function (m) { return m.desde < desde; });
+              p.metas.push({ desde: desde, min: st.min, ideal: st.ideal });
+              recortar(p, desde, st.ideal);
+            }
+          } else {
+            p.periodos.push({ inicio: st.inicio, semanas: st.dur ? st.semanas : null, fin: null });
+            p.periodos.sort(function (a, b) { return a.inicio < b.inicio ? -1 : a.inicio > b.inicio ? 1 : 0; });
+            p.metas = p.metas.filter(function (m) { return m.desde < st.inicio; });
+            p.metas.push({ desde: st.inicio, min: st.min, ideal: st.ideal });
+            recortar(p, st.inicio, st.ideal);
+            p.estado = 'activo'; p.cierre = null;
+            msg = 'Pacto reactivado';
+          }
+        }
+        persistir();
+        cerrarHoja(function () { repintar(); aviso(msg); });
+      },
+      eliminar: function (st) {
+        confirmar({ titulo: '¿Eliminar este pacto?', texto: 'Se borrará «' + st.nombre + '» junto con todo su historial. Si solo quieres dejar de verlo, usa «Cerrar experimento» y elige Pausar.', ok: 'Eliminar', peligro: true }, function () {
+          borrarPacto(st.id);
+          cerrarHoja(function () { repintar(); aviso('Pacto eliminado'); });
+        });
+      }
+    }
+  });
+}
+function borrarPacto(id) {
+  datos.pactos = datos.pactos.filter(function (p) { return p.id !== id; });
+  if (estado.sel === id) estado.sel = null;
+  if (estado.exp === id) estado.exp = null;
+  persistir();
+}
+
+/* --- Nota de una actividad en la semana que se está viendo --- */
+function abrirNota(id) {
+  const p = buscarPacto(id), w = estado.semana;
+  if (!p) return;
+  const previa = (p.notas || {})[w] || '';
+  abrirHoja({
+    estado: { texto: previa },
+    foco: 'textarea',
+    html: function (st) {
+      return cabHoja('Nota') + '<p class="resumen">' + esc(p.nombre) + ' · ' + etiquetaSemana(w) + '</p>' +
+        '<label class="campo"><span class="etq">Nota de la semana</span><textarea data-campo="texto" maxlength="' + MAX_NOTA +
+        '" placeholder="Qué notaste, cómo te fue, qué cambiarías…">' + esc(st.texto) + '</textarea></label>' +
+        '<div class="pie"><button class="btn btn-pri btn-ancho" data-a="guardar">Guardar</button></div>' +
+        (previa ? '<div class="pie2"><button class="btn btn-pel" data-a="borrar">Borrar nota</button></div>' : '');
+    },
+    acciones: {
+      guardar: function (st) {
+        const t = String(st.texto || '').trim().slice(0, MAX_NOTA);
+        if (!p.notas) p.notas = {};
+        if (t) p.notas[w] = t; else delete p.notas[w];
+        persistir();
+        cerrarHoja(function () { repintar(); aviso(t ? 'Nota guardada' : (previa ? 'Nota borrada' : 'Sin cambios')); });
+      },
+      borrar: function () {
+        confirmar({ titulo: '¿Borrar la nota?', texto: 'Se borrará la nota de esta semana de «' + p.nombre + '».', ok: 'Borrar', peligro: true }, function () {
+          delete p.notas[w];
+          persistir();
+          cerrarHoja(function () { repintar(); aviso('Nota borrada'); });
+        });
+      }
+    }
+  });
+}
+
+/* --- Categoría: nueva o editar --- */
+function abrirCategoria(id, alGuardar) {
+  const c = id ? buscarCat(id) : null;
+  const usados = PALETA.find(function (x) { return !datos.categorias.some(function (k) { return k.color === x.c; }); });
+  abrirHoja({
+    estado: { id: id, nombre: c ? c.nombre : '', color: c ? c.color : (usados || PALETA[0]).c, error: '' },
+    foco: c ? null : 'input',
+    html: function (st) {
+      let h = cabHoja(st.id ? 'Editar categoría' : 'Nueva categoría');
+      h += '<label class="campo"><span class="etq">Nombre</span><input type="text" data-campo="nombre" value="' + esc(st.nombre) + '" maxlength="40" placeholder="Ej. Salud" autocomplete="off" enterkeyhint="done"></label>';
+      h += '<div class="campo"><span class="etq">Color</span><div class="muestras">' + muestras('color', '', st.color) + '</div></div>';
+      if (st.error) h += '<p class="error" role="alert">' + esc(st.error) + '</p>';
+      h += '<div class="pie"><button class="btn btn-pri btn-ancho" data-a="guardar">Guardar</button></div>' +
+        (st.id ? '<div class="pie2"><button class="btn btn-pel" data-a="eliminar">Eliminar categoría</button></div>' : '');
+      return h;
+    },
+    acciones: {
+      color: function (st, b, h) { st.color = b.dataset.c; h.pintar(); },
+      guardar: function (st, b, h) {
+        const nombre = st.nombre.trim();
+        if (!nombre) { st.error = 'Escribe un nombre para la categoría.'; h.pintar(); return; }
+        if (datos.categorias.some(function (k) { return k.id !== st.id && k.nombre.toLowerCase() === nombre.toLowerCase(); })) { st.error = 'Ya tienes una categoría con ese nombre.'; h.pintar(); return; }
+        let idCat = st.id;
+        if (idCat) { const k = buscarCat(idCat); k.nombre = nombre; k.color = st.color; }
+        else { idCat = nuevoId(); datos.categorias.push({ id: idCat, nombre: nombre, color: st.color }); }
+        persistir();
+        cerrarHoja(function () { repintar(); if (alGuardar) alGuardar(idCat); });
+      },
+      eliminar: function (st, b, h) {
+        const n = datos.pactos.filter(function (p) { return p.categoriaId === st.id; }).length;
+        if (!n) {
+          confirmar({ titulo: '¿Eliminar categoría?', texto: 'Se eliminará «' + st.nombre + '». No tiene pactos.', ok: 'Eliminar', peligro: true }, function () {
+            datos.categorias = datos.categorias.filter(function (k) { return k.id !== st.id; });
+            persistir();
+            cerrarHoja(function () { repintar(); aviso('Categoría eliminada'); });
+          });
+          return;
+        }
+        const otras = datos.categorias.filter(function (k) { return k.id !== st.id; });
+        if (!otras.length) { st.error = 'Esta categoría tiene pactos. Crea otra categoría primero para poder moverlos.'; h.pintar(); return; }
+        abrirHoja({
+          clase: 'dialogo',
+          estado: { destino: otras[0].id },
+          html: function (s2) {
+            return '<h2 class="dlg-t">Mover ' + plural(n, 'pacto', 'pactos') + '</h2><p class="dlg-p">«' + esc(st.nombre) + '» tiene pactos. Elige a qué categoría pasarlos antes de eliminarla.</p>' +
+              '<div class="chips-sel" style="margin-top:14px">' + otras.map(function (k) {
+                return '<button class="chip-b" data-a="destino" data-id="' + esc(k.id) + '" aria-pressed="' + (s2.destino === k.id) + '"><span class="punto" style="background:' + k.color + '"></span>' + esc(k.nombre) + '</button>';
+              }).join('') + '</div><div class="dlg-b"><button class="btn btn-gris btn-ch" data-a="__cerrar">Cancelar</button><button class="btn btn-rojo btn-ch" data-a="si">Mover y eliminar</button></div>';
+          },
+          acciones: {
+            destino: function (s2, b2, h2) { s2.destino = b2.dataset.id; h2.pintar(); },
+            si: function (s2) {
+              datos.pactos.forEach(function (p) { if (p.categoriaId === st.id) p.categoriaId = s2.destino; });
+              datos.categorias = datos.categorias.filter(function (k) { return k.id !== st.id; });
+              persistir();
+              cerrarHoja(function () { cerrarHoja(function () { repintar(); aviso('Categoría eliminada'); }); });
+            }
+          }
+        });
+      }
+    }
+  });
+}
+
+/* --- Cierre del experimento: Continuar, Ajustar o Pausar --- */
+function abrirCierre(id) {
+  const p = buscarPacto(id);
+  if (!p || p.estado !== 'activo') return;
+  const hoy = semanaHoy(), up = ultimo(p);
+  const m = metaEn(p, up.inicio > hoy ? up.inicio : hoy);
+  abrirHoja({
+    estado: { id: id, op: null, mas: up.semanas ? Math.min(up.semanas, 52) : 4, sinFin: false, min: m.min, ideal: m.ideal, dur: !!up.semanas, semanas: up.semanas ? Math.min(up.semanas, 52) : 4 },
+    html: function (st) {
+      const p = buscarPacto(st.id), hoy = semanaHoy(), up = ultimo(p), f = finPeriodo(up);
+      const hasta = f !== null && f < hoy ? f : hoy;
+      const sem = [];
+      for (let w = up.inicio; w <= hasta; w = masSemanas(w, 1)) sem.push(w);
+      const r = statsPacto(p, sem, hoy, true);
+      let h = cabHoja('Cierre del experimento');
+      h += '<p><strong>' + esc(p.nombre) + '</strong></p><p class="resumen">' +
+        (sem.length ? 'Desde el ' + fechaCorta(up.inicio) + ' · ' + plural(sem.length, 'semana', 'semanas') + (up.semanas ? ' de ' + up.semanas : '') +
+          ' · cumplimiento ' + pctTxt(r.pct) + ' (' + r.cumplidas + ' de ' + r.totales + ' cumplidas)' : 'Todavía no empieza.') + '</p>';
+      h += htmlNotas(p, up.inicio, hasta);
+      const opc = function (v, t, d) { return '<button class="opc" data-a="op" data-v="' + v + '" aria-pressed="' + (st.op === v) + '"><strong>' + t + '</strong><span>' + d + '</span></button>'; };
+      if (up.semanas) {
+        h += opc('continuar', 'Continuar', 'Extender la duración con la misma meta.');
+        if (st.op === 'continuar') h += '<div class="panel">' + (st.sinFin ? '' : '<div class="fila"><span>Semanas más</span>' + paso('mas', st.mas, 'semanas más') + '</div>') +
+          '<div class="chips-sel" style="margin-top:6px"><button class="chip-b" data-a="sinfin" aria-pressed="' + st.sinFin + '">Seguir sin fecha de fin</button></div></div>';
+      }
+      h += opc('ajustar', 'Ajustar', 'Cambiar la meta o la duración e iniciar un nuevo periodo.');
+      if (st.op === 'ajustar') {
+        const ini = inicioAjuste(up, f, hoy);
+        h += '<div class="panel">' + camposMeta(st) + '<div style="margin-top:8px">' + camposDuracion(st) + '</div>' +
+          '<p class="nota" style="margin-top:10px">El nuevo periodo empieza ' + (ini === hoy ? 'esta semana' : 'la próxima semana') + ' (' + etiquetaSemana(ini) + ').</p></div>';
+      }
+      h += opc('pausar', 'Pausar', 'Mandarlo al Archivo. Podrás reactivarlo después.');
+      h += '<div class="pie"><button class="btn btn-pri btn-ancho" data-a="confirmar"' + (st.op ? '' : ' disabled') + '>Confirmar</button></div>';
+      return h;
+    },
+    acciones: {
+      op: function (st, b, h) { st.op = b.dataset.v; h.pintar(); },
+      sinfin: function (st, b, h) { st.sinFin = !st.sinFin; h.pintar(); },
+      menos: function (st, b, h) { mover(st, b.dataset.c, -1); h.pintar(); },
+      mas: function (st, b, h) { mover(st, b.dataset.c, 1); h.pintar(); },
+      dur: function (st, b, h) { st.dur = b.dataset.v === '1'; h.pintar(); },
+      confirmar: function (st) {
+        if (!st.op) return;
+        const p = buscarPacto(st.id), hoy = semanaHoy(), up = ultimo(p), f = finPeriodo(up);
+        let msg = '';
+        if (st.op === 'continuar') {
+          if (f !== null && hoy > masSemanas(f, 1)) p.periodos.push({ inicio: hoy, semanas: st.sinFin ? null : st.mas, fin: null });
+          else if (st.sinFin) up.semanas = null;
+          else up.semanas = lim((up.semanas || 0) + st.mas, 1, MAX_SEMANAS);
+          msg = 'Experimento extendido';
+        } else if (st.op === 'ajustar') {
+          const ini = inicioAjuste(up, f, hoy);
+          if (f === null || hoy < f) up.fin = masSemanas(hoy, -1);
+          p.periodos = p.periodos.filter(function (x) { const ff = finPeriodo(x); return ff === null || ff >= x.inicio; });
+          p.periodos.push({ inicio: ini, semanas: st.dur ? st.semanas : null, fin: null });
+          p.metas = p.metas.filter(function (x) { return x.desde < ini; });
+          p.metas.push({ desde: ini, min: st.min, ideal: st.ideal });
+          recortar(p, ini, st.ideal);
+          msg = 'Nuevo periodo desde el ' + fechaCorta(ini);
+        } else {
+          if (f !== null && hoy >= f) p.cierre = { fecha: hoyIso(), motivo: 'fin' };
+          else { up.fin = (p.registros[hoy] || 0) > 0 ? hoy : masSemanas(hoy, -1); p.cierre = { fecha: hoyIso(), motivo: 'manual' }; }
+          p.estado = 'archivado';
+          if (estado.exp === p.id) estado.exp = null;
+          msg = 'Enviado al Archivo';
+        }
+        persistir();
+        cerrarHoja(function () { repintar(); aviso(msg); });
+      }
+    }
+  });
+}
+/* Semana en la que arranca el nuevo periodo al "Ajustar" */
+function inicioAjuste(up, f, hoy) {
+  if (f !== null && hoy === f) return masSemanas(f, 1);   // en su última semana: empieza la próxima
+  return hoy;                                             // ya terminó, o se ajusta a mitad: empieza esta
+}
+
+/* --- Ajustes: colores, categorías y respaldo --- */
+function abrirAjustes() {
+  abrirHoja({
+    clase: 'completa',
+    html: function () {
+      const a = datos.ajustes, ej = datos.categorias[0] ? datos.categorias[0].color : PALETA[1].c;
+      const prev = function (color, pct, etq) { return '<div class="comp-item">' + anillo(46, 5, pct, color, '<span class="comp-n">' + pct + '%</span>') + '<span class="comp-e">' + etq + '</span></div>'; };
+      const fila = function (etq, clave, auto) {
+        return '<div class="aj-fila"><div class="aj-etq"><span class="etq">' + etq + '</span>' +
+          (auto ? '<button class="muestra-auto" data-a="color" data-k="' + clave + '" data-c="auto" aria-pressed="' + (a[clave] === 'auto') + '" aria-label="' + etq + ': color automático"><span>Auto</span></button>' : '') +
+          '</div><div class="muestras">' + muestras('color', 'data-k="' + clave + '"', a[clave]) + '</div></div>';
+      };
+      let h = '<div class="hoja-cab"><button class="icono" data-a="__cerrar" aria-label="Volver">' + ICO.izq + '</button><h2>Ajustes</h2><span class="hueco"></span></div>';
+      h += '<section class="aj"><h3>Colores de los anillos</h3><div class="aj-prev">' + prev(a.colorSemana, 75, 'Semana') +
+        prev(a.colorActividad === 'auto' ? ej : a.colorActividad, 66, 'Actividad') + prev(a.colorCategoria === 'auto' ? ej : a.colorCategoria, 80, 'Categoría') + '</div>' +
+        fila('Semana', 'colorSemana', false) + fila('Actividad', 'colorActividad', true) + fila('Categoría', 'colorCategoria', true) +
+        '<p class="nota" style="margin-top:8px">«Auto» usa el color de la categoría de cada pacto. Los círculos de cada pacto usan el color de su categoría; el de Semana pinta también los botones.</p></section>';
+      h += '<section class="aj"><h3>Categorías</h3>' + datos.categorias.map(function (c) {
+        const n = datos.pactos.filter(function (p) { return p.categoriaId === c.id; }).length;
+        return '<button class="aj-cat" data-a="cat-editar" data-id="' + esc(c.id) + '"><span class="punto" style="background:' + c.color + '"></span><span class="aj-cat-n">' + esc(c.nombre) + '</span><span class="aj-cat-c">' + plural(n, 'pacto', 'pactos') + '</span>' + ICO.der + '</button>';
+      }).join('') + '<div class="aj-b"><button class="btn btn-gris btn-ch" data-a="cat-nueva">' + ICO.mas + 'Nueva categoría</button></div></section>';
+      h += '<section class="aj"><h3>Respaldo</h3><p class="nota">Tus datos viven solo en este celular. Exporta un respaldo de vez en cuando y guárdalo en un lugar seguro.</p>' +
+        '<div class="aj-b"><button class="btn btn-gris btn-ch" data-a="exportar">Exportar datos</button><button class="btn btn-gris btn-ch" data-a="importar">Importar datos</button></div></section>';
+      h += '<p class="nota aj-v">Pactos ' + APP_VERSION + ' · datos v' + VERSION_DATOS + '</p>';
+      return h;
+    },
+    acciones: {
+      color: function (st, b) { datos.ajustes[b.dataset.k] = b.dataset.c; persistir(); aplicarAcento(); repintar(); },
+      'cat-nueva': function () { abrirCategoria(null, null); },
+      'cat-editar': function (st, b) { abrirCategoria(b.dataset.id, null); },
+      exportar: exportar,
+      importar: function () { $archivo.click(); }
+    }
+  });
+}
+
+function exportar() {
+  try {
+    const cuerpo = JSON.stringify(Object.assign({ app: 'pactos', exportado: new Date().toISOString() }, datos), null, 2);
+    const url = URL.createObjectURL(new Blob([cuerpo], { type: 'application/json' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = 'pactos-respaldo-' + hoyIso() + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    aviso('Respaldo descargado');
+  } catch (e) { aviso('No se pudo crear el respaldo.'); }
+}
+
+$archivo.addEventListener('change', function () {
+  const f = $archivo.files && $archivo.files[0];
+  if (!f) return;
+  const lector = new FileReader();
+  lector.onload = function () {
+    $archivo.value = '';
+    let d, nuevo;
+    try {
+      d = JSON.parse(String(lector.result));
+      if (!esObj(d) || typeof d.version !== 'number' || !Array.isArray(d.pactos) || !Array.isArray(d.categorias)) throw new Error('formato');
+    } catch (e) { aviso('Ese archivo no es un respaldo de Pactos.'); return; }
+    if (d.version > VERSION_DATOS) { aviso('Ese respaldo es de una versión más nueva. Actualiza la app primero.'); return; }
+    try { nuevo = sanear(migrar(d)); } catch (e) { aviso('No se pudo leer el respaldo.'); return; }
+    confirmar({
+      titulo: '¿Reemplazar tus datos?',
+      texto: 'El respaldo trae ' + plural(nuevo.pactos.length, 'pacto', 'pactos') + ', ' + plural(nuevo.categorias.length, 'categoría', 'categorías') + ' y ' + plural(nuevo.tareas.length, 'pendiente', 'pendientes') + '. Reemplazará todo lo que hay ahora en este celular.',
+      ok: 'Reemplazar', peligro: true
+    }, function () {
+      try { localStorage.setItem('pactos.respaldo.antes-de-importar', JSON.stringify(datos)); } catch (e) {}
+      datos = nuevo;
+      estado.sel = null; estado.exp = null;
+      persistir(); aplicarAcento(); repintar();
+      aviso('Datos importados');
+    });
+  };
+  lector.onerror = function () { $archivo.value = ''; aviso('No se pudo leer el archivo.'); };
+  lector.readAsText(f);
+});
+
+/* ---------- 12. Toques en la pantalla principal ---------- */
+const ACC = {
+  nav: function (b) {
+    if (estado.vista === b.dataset.v) { window.scrollTo(0, 0); return; }
+    estado.vista = b.dataset.v; estado.sel = null; estado.exp = null;
+    render(); window.scrollTo(0, 0); revisarScroll();
+  },
+  sem: function (b) { irSemana(masSemanas(estado.semana, +b.dataset.d)); },
+  'sem-hoy': function () { irSemana(semanaHoy()); },
+  marca: function (b) {
+    const p = buscarPacto(b.dataset.id);
+    if (!p) return;
+    const w = estado.semana, m = metaEn(p, w), c = cuenta(p, w);
+    const n = +b.dataset.k < c ? c - 1 : c + 1;      // tocar uno tachado lo destacha; uno vacío suma una vez
+    if (n <= 0) delete p.registros[w]; else p.registros[w] = Math.min(n, m.ideal);
+    if (estado.exp && estado.exp !== p.id) estado.exp = null;
+    persistir(); render();
+    if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
+  },
+  opc: function (b) { estado.exp = estado.exp === b.dataset.id ? null : b.dataset.id; render(); },
+  sel: function (b) { estado.sel = estado.sel === b.dataset.id ? null : b.dataset.id; render(); },
+  des: function () { estado.exp = null; render(); },
+  nota: function (b) { abrirNota(b.dataset.id); },
+  arriba: function () { window.scrollTo({ top: 0, behavior: 'smooth' }); },
+  nuevo: function () { abrirPacto('nuevo', null); },
+  editar: function (b) { abrirPacto('editar', b.dataset.id); },
+  'cerrar-exp': function (b) { abrirCierre(b.dataset.id); },
+  reactivar: function (b) { abrirPacto('reactivar', b.dataset.id); },
+  'eliminar-arch': function (b) {
+    const p = buscarPacto(b.dataset.id);
+    if (!p) return;
+    confirmar({ titulo: '¿Eliminar del archivo?', texto: 'Se borrará «' + p.nombre + '» junto con todo su historial. No se puede deshacer.', ok: 'Eliminar', peligro: true }, function () {
+      borrarPacto(p.id); repintar(); aviso('Pacto eliminado');
+    });
+  },
+  rango: function (b) { estado.rango = +b.dataset.n; render(); },
+  't-agregar': function () { agregarTarea(); },
+  't-check': function (b) {
+    const i = datos.tareas.findIndex(function (t) { return t.id === b.dataset.id; });
+    if (i < 0) return;
+    const t = datos.tareas.splice(i, 1)[0];
+    t.hecho = !t.hecho;
+    datos.tareas.unshift(t);   // queda arriba de su grupo
+    persistir(); render();
+  },
+  't-editar': function (b) { abrirTarea(b.dataset.id); },
+  't-limpiar': function () {
+    const n = datos.tareas.filter(function (t) { return t.hecho; }).length;
+    confirmar({ titulo: '¿Borrar completados?', texto: 'Se borrarán ' + plural(n, 'pendiente completado', 'pendientes completados') + '.', ok: 'Borrar', peligro: true }, function () {
+      datos.tareas = datos.tareas.filter(function (t) { return !t.hecho; });
+      persistir(); repintar(); aviso('Completados borrados');
+    });
+  },
+  ajustes: function () { abrirAjustes(); }
+};
+function irSemana(w) {
+  estado.semana = w;
+  const p = estado.exp ? buscarPacto(estado.exp) : null;
+  if (!p || !activoEn(p, w)) estado.exp = null;
+  render();
+}
+
+document.addEventListener('click', function (ev) {
+  const b = ev.target.closest('[data-a]');
+  if (!b) return;
+  const capa = b.closest('.capa');
+  if (capa) {
+    const h = pila[pila.length - 1];
+    if (!h || h.el !== capa || h.cerrando) return;
+    if (b.dataset.a === '__cerrar') { cerrarHoja(); return; }
+    const fn = h.cfg.acciones && h.cfg.acciones[b.dataset.a];
+    if (fn) fn(h.st, b, h);
+    return;
+  }
+  if (pila.length) return;
+  const fn = ACC[b.dataset.a];
+  if (fn) fn(b);
+});
+/* Lo que se escribe en un formulario se guarda al momento en su estado */
+document.addEventListener('input', function (ev) {
+  if (ev.target.id === 't-input') { estado.borrador = ev.target.value; return; }
+  const t = ev.target, capa = t.closest ? t.closest('.capa') : null;
+  if (!capa || !t.dataset.campo) return;
+  const h = pila.find(function (x) { return x.el === capa; });
+  if (h) h.st[t.dataset.campo] = t.value;
+});
+document.addEventListener('keydown', function (ev) {
+  if (ev.key === 'Enter' && ev.target.id === 't-input' && !pila.length) { ev.preventDefault(); agregarTarea(); return; }
+  if (ev.key !== 'Enter' || ev.target.tagName === 'TEXTAREA' || !ev.target.dataset || !ev.target.dataset.campo) return;
+  const h = pila[pila.length - 1];
+  if (h && !h.cerrando && h.cfg.acciones && h.cfg.acciones.guardar) { ev.preventDefault(); ev.target.blur(); h.cfg.acciones.guardar(h.st, ev.target, h); }
+});
+
+let tic = false;
+window.addEventListener('scroll', function () {
+  if (tic) return;
+  tic = true;
+  requestAnimationFrame(function () { tic = false; revisarScroll(); });
+}, { passive: true });
+window.addEventListener('resize', function () { if (estado.vista === 'analisis') render(); else revisarScroll(); });
+
+/* Si la app queda abierta y cambia la semana, se pone al día al volver a ella */
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState !== 'visible') return;
+  const hoy = semanaHoy();
+  if (hoy !== estado.hoyVisto) {
+    if (estado.semana === estado.hoyVisto) estado.semana = hoy;
+    estado.hoyVisto = hoy;
+    repintar();
+  }
+});
+
+/* ---------- 13. Arranque ---------- */
+aplicarAcento();
+render();
+if (avisoInicial) aviso(avisoInicial);
+if (navigator.storage && navigator.storage.persist) { try { navigator.storage.persist().catch(function () {}); } catch (e) {} }
+
+/* Funcionar sin internet y avisar cuando haya una versión nueva */
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', function () {
+    const habia = !!navigator.serviceWorker.controller;
+    let avisado = false;
+    navigator.serviceWorker.register('sw.js').then(function (reg) {
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') reg.update().catch(function () {});
+      });
+    }).catch(function () {});
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!habia || avisado) return;
+      avisado = true;
+      aviso('Hay una versión nueva de la app.', { texto: 'Actualizar', fn: function () { location.reload(); } });
+    });
+  });
+}
+})();
+</script>
+</body>
+</html>
